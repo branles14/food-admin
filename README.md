@@ -22,24 +22,21 @@ The project uses MongoDB to store product and container information.
 ## Prerequisites
 
 - Python 3
-- Running MongoDB instance (optional)
-- Environment variables for MongoDB connection
+- MongoDB installed locally (setup script will attempt installation)
 
 ## Setup
 
 1. Clone this repository.
-2. Run `python3 scripts/startup.py` to automatically install dependencies,
-   create a `.env` file if needed and launch the application. When no
-   `MONGODB_URI` is provided an in-memory MongoDB is used.
-3. Visit `http://localhost:3000/health` to verify the database connection.
-4. (Optional) Seed example data with `python3 seeds.py`.
+2. Run `python3 scripts/setup.py` to install dependencies, configure a local
+   MongoDB server and create a systemd service.
+3. Start the service with `python3 scripts/startup.py`.
+4. Visit `http://localhost:3000/health` to verify the database connection.
+5. (Optional) Seed example data with `python3 seeds.py`.
 
 ### Startup script
 
-The `python3 scripts/startup.py` command can be used at any time. It installs
-missing dependencies, copies `.env.example` to `.env` when necessary, starts an
-in-memory MongoDB server when `MONGODB_URI` is undefined and then launches the
-application.
+Use `python3 scripts/setup.py` once to configure the environment and service.
+Afterwards `python3 scripts/startup.py` simply starts the systemd service.
 
 ### Generating and printing QR codes
 
