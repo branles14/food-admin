@@ -1,22 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const { connect } = require('./db');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-async function connectDb() {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('MongoDB connected');
-  } catch (error) {
-    console.error('MongoDB connection error:', error.message);
-    process.exit(1);
-  }
-}
 
 app.get('/health', async (req, res) => {
   const state = mongoose.connection.readyState;
@@ -27,7 +16,7 @@ app.get('/health', async (req, res) => {
   }
 });
 
-connectDb().then(() => {
+connect().then(() => {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
