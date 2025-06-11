@@ -28,17 +28,18 @@ The project uses MongoDB to store product and container information.
 ## Setup
 
 1. Clone this repository.
-2. Install dependencies with `npm install`.
-3. Copy `.env.example` to `.env` and update `MONGODB_URI`.
-4. Start the application using `npm start`.
-5. Visit `http://localhost:3000/health` to verify the database connection.
-6. (Optional) Seed example data with `npm run seed`.
+2. Run `npm run startup` to automatically install dependencies, create a
+   `.env` file if needed and launch the application with an in-memory MongoDB
+   instance when no `MONGODB_URI` is provided.
+3. Visit `http://localhost:3000/health` to verify the database connection.
+4. (Optional) Seed example data with `npm run seed`.
 
 ### Startup script
 
-If you don't have a MongoDB instance available, run `npm run startup`. This
-command launches an in-memory MongoDB server using a Python helper script and
-then starts the application.
+The `npm run startup` command can be used at any time. It installs missing
+dependencies, copies `.env.example` to `.env` when necessary, starts an
+in-memory MongoDB server if `MONGODB_URI` is undefined and then launches the
+application.
 
 ### Generating and printing QR codes
 
