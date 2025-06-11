@@ -62,20 +62,30 @@ def ensure_mongodb() -> None:
         subprocess.run(['sudo', 'systemctl', 'enable', '--now', 'mongod'])
         return
 
-    print('MongoDB server not found. Attempting to install...')
-    subprocess.run(['sudo', 'apt-get', 'update'])
-    candidates = [
-        ['sudo', 'apt-get', 'install', '-y', 'mongodb-org'],
-        ['sudo', 'apt-get', 'install', '-y', 'mongodb-server'],
-        ['sudo', 'apt-get', 'install', '-y', 'mongodb'],
-    ]
-    for cmd in candidates:
-        result = subprocess.run(cmd)
-        if result.returncode == 0:
-            subprocess.run(['sudo', 'systemctl', 'enable', '--now', 'mongod'])
-            return
-
-    print('Failed to install MongoDB. Please install it manually.')
+    print('MongoDB server not found. Attempting to install via official repository...')
+    # Step 1: Import the public key
+    subprocess.run(
+        'curl -fsSL https://pgp.mongodb.com/server-7.0.asc | '
+        'sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor',
+        shell=True,
+    )
+    # Step 2: Add the MongoDB repo
+    subprocess.run(
+        'echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] '
+        'https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/7.0 multiverse" | '
+        'sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list',
+        shell=True,
+    )
+    # Step 3: Update packages and install MongoDB
+    subprocess.run(['sudo', 'apt', 'update'])
+    result = subprocess.run(['sudo', 'apt', 'install', '-y', 'mongodb-org'])
+    if result.returncode != 0:
+        print('Failed to install MongoDB. Please install it manually.')
+        return
+    # Step 4: Start the service
+    subprocess.run(['sudo', 'systemctl', 'enable', '--now', 'mongod'])
+    # Step 5: Check status
+    subprocess.run(['systemctl', 'status', 'mongod'])
 
 
 def create_service() -> None:

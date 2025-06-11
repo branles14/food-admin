@@ -22,14 +22,14 @@ The project uses MongoDB to store product and container information.
 ## Prerequisites
 
 - Python 3
-- MongoDB installed locally (setup script will attempt installation)
+- MongoDB (the setup script will install and start `mongod` if needed)
 
 ## Setup
 
 1. Clone this repository.
-2. Run `python3 scripts/setup.py` to install dependencies, configure a local
-   MongoDB server and create a systemd service. The script attempts to install
-   `mongodb-org` or `mongodb-server` when needed.
+2. Run `python3 scripts/setup.py` to install dependencies, set up MongoDB and
+   create the service. The script adds the official MongoDB 7.0 repository and
+   ensures the `mongod` service is enabled and running.
 3. Start the service with `python3 scripts/startup.py`.
 4. Visit `http://localhost:3000/health` to verify the database connection.
 5. (Optional) Seed example data with `python3 seeds.py`.
