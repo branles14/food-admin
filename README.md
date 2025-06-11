@@ -34,6 +34,11 @@ The project uses MongoDB to store product and container information.
 5. Visit `http://localhost:3000/health` to verify the database connection.
 6. (Optional) Seed example data with `npm run seed`.
 
+### Startup script
+
+If you don't have a MongoDB instance available, run `npm run startup`. This
+command launches an in-memory MongoDB server and then starts the application.
+
 ### Generating and printing QR codes
 
 Run `npm run generate-qr` to create PNG QR codes for each container UUID. The
