@@ -21,34 +21,34 @@ The project uses MongoDB to store product and container information.
 
 ## Prerequisites
 
-- Node.js and npm
-- Running MongoDB instance
+- Python 3
+- Running MongoDB instance (optional)
 - Environment variables for MongoDB connection
 
 ## Setup
 
 1. Clone this repository.
-2. Run `npm run startup` to automatically install dependencies, create a
-   `.env` file if needed and launch the application with an in-memory MongoDB
-   instance when no `MONGODB_URI` is provided.
+2. Run `python3 scripts/startup.py` to automatically install dependencies,
+   create a `.env` file if needed and launch the application. When no
+   `MONGODB_URI` is provided an in-memory MongoDB is used.
 3. Visit `http://localhost:3000/health` to verify the database connection.
-4. (Optional) Seed example data with `npm run seed`.
+4. (Optional) Seed example data with `python3 seeds.py`.
 
 ### Startup script
 
-The `npm run startup` command can be used at any time. It installs missing
-dependencies, copies `.env.example` to `.env` when necessary, starts an
-in-memory MongoDB server if `MONGODB_URI` is undefined and then launches the
+The `python3 scripts/startup.py` command can be used at any time. It installs
+missing dependencies, copies `.env.example` to `.env` when necessary, starts an
+in-memory MongoDB server when `MONGODB_URI` is undefined and then launches the
 application.
 
 ### Generating and printing QR codes
 
-Run `npm run generate-qr` to create PNG QR codes for each container UUID. The
-images are written to the `qrcodes/` directory. You can print these files using
-any image viewer or the `lpr` command:
+Run `python3 scripts/generate_qrcodes.py` to create PNG QR codes for each
+container UUID. The images are written to the `qrcodes/` directory. You can
+print these files using any image viewer or the `lpr` command:
 
 ```bash
-npm run generate-qr
+python3 scripts/generate_qrcodes.py
 lpr qrcodes/<container-uuid>.png
 ```
 
@@ -56,7 +56,8 @@ Ensure your printer supports PNG images.
 
 ## Disclaimer
 
-Nutritional information is provided as-is and may not always be accurate. Verify with official sources.
+Nutritional information is provided as-is and may not always be accurate. Verify
+with official sources.
 
 ## License
 

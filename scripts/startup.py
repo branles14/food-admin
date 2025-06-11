@@ -20,12 +20,15 @@ def get_dotenv_value(key: str) -> str:
                     return v.strip()
     return ''
 
-
 def ensure_dependencies():
-    """Install npm packages if node_modules does not exist."""
-    if not os.path.isdir('node_modules'):
-        print('Installing npm dependencies...')
-        result = subprocess.run(['npm', 'install'])
+    """Install required Python packages when missing."""
+    try:
+        import flask  # type: ignore
+        import pymongo  # type: ignore
+        import dotenv  # type: ignore
+    except Exception:
+        print('Installing Python dependencies...')
+        result = subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
         if result.returncode != 0:
             sys.exit(result.returncode)
 
@@ -41,29 +44,14 @@ def main():
     ensure_env_file()
     ensure_dependencies()
 
-    mongo_uri = os.environ.get('MONGODB_URI')
-    if not mongo_uri:
-        mongo_uri = get_dotenv_value('MONGODB_URI')
-    memory_server = None
+    mongo_uri = os.environ.get('MONGODB_URI') or get_dotenv_value('MONGODB_URI')
+    if not mongo_uri or mongo_uri.startswith('your-'):
+        mongo_uri = 'mongomock://localhost'
+        os.environ['MONGODB_URI'] = mongo_uri
+        print('Using in-memory MongoDB')
 
-    try:
-        if not mongo_uri or mongo_uri.startswith('your-'):
-            memory_server = subprocess.Popen(
-                ['node', 'scripts/memory_server.js'],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
-            )
-            mongo_uri = memory_server.stdout.readline().strip()
-            os.environ['MONGODB_URI'] = mongo_uri
-            print(f"Started in-memory MongoDB at {mongo_uri}")
-
-        server = subprocess.Popen(['node', 'index.js'], env=os.environ)
-        exit_code = server.wait()
-    finally:
-        if memory_server:
-            memory_server.terminate()
-            memory_server.wait()
+    server = subprocess.Popen([sys.executable, 'app.py'], env=os.environ)
+    exit_code = server.wait()
     sys.exit(exit_code)
 
 
