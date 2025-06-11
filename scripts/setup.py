@@ -58,18 +58,24 @@ def ensure_env_file() -> None:
 
 def ensure_mongodb() -> None:
     """Ensure MongoDB server is installed and running."""
-    if shutil.which('mongod') is None:
-        print('MongoDB server not found. Attempting to install...')
-        cmds = [
-            ['sudo', 'apt-get', 'update'],
-            ['sudo', 'apt-get', 'install', '-y', 'mongodb'],
-        ]
-        for cmd in cmds:
-            result = subprocess.run(cmd)
-            if result.returncode != 0:
-                print('Failed to install MongoDB. Please install it manually.')
-                return
-    subprocess.run(['sudo', 'systemctl', 'enable', '--now', 'mongod'])
+    if shutil.which('mongod'):
+        subprocess.run(['sudo', 'systemctl', 'enable', '--now', 'mongod'])
+        return
+
+    print('MongoDB server not found. Attempting to install...')
+    subprocess.run(['sudo', 'apt-get', 'update'])
+    candidates = [
+        ['sudo', 'apt-get', 'install', '-y', 'mongodb-org'],
+        ['sudo', 'apt-get', 'install', '-y', 'mongodb-server'],
+        ['sudo', 'apt-get', 'install', '-y', 'mongodb'],
+    ]
+    for cmd in candidates:
+        result = subprocess.run(cmd)
+        if result.returncode == 0:
+            subprocess.run(['sudo', 'systemctl', 'enable', '--now', 'mongod'])
+            return
+
+    print('Failed to install MongoDB. Please install it manually.')
 
 
 def create_service() -> None:

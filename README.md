@@ -28,10 +28,12 @@ The project uses MongoDB to store product and container information.
 
 1. Clone this repository.
 2. Run `python3 scripts/setup.py` to install dependencies, configure a local
-   MongoDB server and create a systemd service.
+   MongoDB server and create a systemd service. The script attempts to install
+   `mongodb-org` or `mongodb-server` when needed.
 3. Start the service with `python3 scripts/startup.py`.
 4. Visit `http://localhost:3000/health` to verify the database connection.
 5. (Optional) Seed example data with `python3 seeds.py`.
+6. Retrieve the current inventory with `curl http://localhost:3000/containers`.
 
 ### Startup script
 
