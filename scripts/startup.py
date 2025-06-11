@@ -20,7 +20,6 @@ def get_dotenv_value(key: str) -> str:
                     return v.strip()
     return ''
 
-
 def ensure_dependencies():
     """Install required Python packages when missing."""
     try:
