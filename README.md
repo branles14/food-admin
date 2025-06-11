@@ -24,8 +24,9 @@ It helps you manage which products you own and where they are stored.
 
 1. Clone this repository.
 2. Install dependencies with `npm install`.
-3. Configure a `.env` file with your MongoDB connection string.
+3. Copy `.env.example` to `.env` and update `MONGODB_URI`.
 4. Start the application using `npm start`.
+5. Visit `http://localhost:3000/health` to verify the database connection.
 
 ## Disclaimer
 
