@@ -34,6 +34,19 @@ The project uses MongoDB to store product and container information.
 5. Visit `http://localhost:3000/health` to verify the database connection.
 6. (Optional) Seed example data with `npm run seed`.
 
+### Generating and printing QR codes
+
+Run `npm run generate-qr` to create PNG QR codes for each container UUID. The
+images are written to the `qrcodes/` directory. You can print these files using
+any image viewer or the `lpr` command:
+
+```bash
+npm run generate-qr
+lpr qrcodes/<container-uuid>.png
+```
+
+Ensure your printer supports PNG images.
+
 ## Disclaimer
 
 Nutritional information is provided as-is and may not always be accurate. Verify with official sources.
