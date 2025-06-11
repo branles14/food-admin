@@ -3,16 +3,21 @@
 Food Admin is a simple project for tracking food inventory and containers.
 It helps you manage which products you own and where they are stored.
 
-## Planned Features
+## Features
 
-- Use MongoDB to store product information.
-- Product schema includes:
-  - `name` - product name
-  - `nutrition` - nutritional details
-  - `upc` - UPC identifier
-  - `uuid` - unique ID / QR code
-  - `containers` - quantities per container
-- Manage containers and track quantity changes.
+The project uses MongoDB to store product and container information.
+
+### Product
+- `name` - product name
+- `nutrition` - nutritional details
+- `upc` - UPC identifier
+- `uuid` - unique ID / QR code
+
+### Container
+- `product` - reference to a product
+- `quantity` - how many units you own
+- `opened` - whether the container has been opened
+- `remaining` - amount left in the container
 
 ## Prerequisites
 
@@ -27,6 +32,7 @@ It helps you manage which products you own and where they are stored.
 3. Copy `.env.example` to `.env` and update `MONGODB_URI`.
 4. Start the application using `npm start`.
 5. Visit `http://localhost:3000/health` to verify the database connection.
+6. (Optional) Seed example data with `npm run seed`.
 
 ## Disclaimer
 
