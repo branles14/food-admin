@@ -6,6 +6,7 @@ import sys
 
 def main() -> None:
     result = subprocess.run(['sudo', 'systemctl', 'start', 'foodadmin'])
+    subprocess.run(['sudo', 'systemctl', 'status', '--no-pager', 'foodadmin'])
     sys.exit(result.returncode)
 
 

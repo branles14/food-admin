@@ -36,6 +36,7 @@ def ensure_dependencies() -> None:
     except Exception:
         print('Installing Python dependencies...')
         result = subprocess.run([
+            'sudo',
             sys.executable,
             '-m',
             'pip',

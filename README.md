@@ -30,10 +30,12 @@ The project uses MongoDB to store product and container information.
 2. Run `python3 scripts/setup.py` to install dependencies, set up MongoDB and
    create the service. The script adds the official MongoDB 7.0 repository and
    ensures the `mongod` service is enabled and running.
-3. Start the service with `python3 scripts/startup.py`.
-4. Visit `http://localhost:3000/health` to verify the database connection.
-5. (Optional) Seed example data with `python3 seeds.py`.
-6. Retrieve the current inventory with `curl http://localhost:3000/containers`.
+3. Start the service with `python3 scripts/startup.py`. This command prints
+   the systemd service status so you can confirm it started correctly.
+4. If needed, inspect the service with `sudo systemctl status foodadmin`.
+5. Visit `http://localhost:3000/health` to verify the database connection.
+6. (Optional) Seed example data with `python3 seeds.py`.
+7. Retrieve the current inventory with `curl http://localhost:3000/containers`.
 
 ### Startup script
 
