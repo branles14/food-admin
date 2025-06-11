@@ -9,7 +9,7 @@
     "dev": "nodemon index.js",
     "seed": "node seeds.js",
     "generate-qr": "node scripts/generateQRCodes.js",
-    "startup": "node scripts/startup.js"
+    "startup": "python3 scripts/startup.py"
   },
   "keywords": [],
   "author": "",

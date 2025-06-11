@@ -37,7 +37,8 @@ The project uses MongoDB to store product and container information.
 ### Startup script
 
 If you don't have a MongoDB instance available, run `npm run startup`. This
-command launches an in-memory MongoDB server and then starts the application.
+command launches an in-memory MongoDB server using a Python helper script and
+then starts the application.
 
 ### Generating and printing QR codes
 
