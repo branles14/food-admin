@@ -30,3 +30,7 @@ It helps you manage which products you own and where they are stored.
 ## Disclaimer
 
 Nutritional information is provided as-is and may not always be accurate. Verify with official sources.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
