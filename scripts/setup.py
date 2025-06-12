@@ -87,20 +87,30 @@ def ensure_docker_mongodb() -> bool:
     )
     if check.returncode != 0:
         print('Creating MongoDB Docker container...')
-        result = subprocess.run([
-            'docker',
-            'run',
-            '--name',
-            container_name,
-            '-d',
-            '-p',
-            '27017:27017',
-            'mongo:7',
-        ])
+        result = subprocess.run(
+            [
+                'docker',
+                'run',
+                '--name',
+                container_name,
+                '-d',
+                '-p',
+                '27017:27017',
+                'mongo:7',
+            ],
+            text=True,
+            capture_output=True,
+        )
+        if result.returncode != 0:
+            print(result.stdout.strip() or result.stderr.strip())
         return result.returncode == 0
 
     print('Starting existing MongoDB Docker container...')
-    result = subprocess.run(['docker', 'start', container_name])
+    result = subprocess.run(
+        ['docker', 'start', container_name], text=True, capture_output=True
+    )
+    if result.returncode != 0:
+        print(result.stdout.strip() or result.stderr.strip())
     return result.returncode == 0
 
 
@@ -111,6 +121,10 @@ def ensure_mongodb() -> None:
 
     print('Failed to start MongoDB Docker container.')
     print('Please verify Docker is installed and the current user has permission to run Docker commands.')
+    print('If Docker reports a permission error, add your user to the docker group:')
+    print('  sudo usermod -aG docker $USER')
+    print('After running the command, log out and back in, then re-run:')
+    print('  python3 scripts/setup.py')
 
 
 def create_service() -> None:
