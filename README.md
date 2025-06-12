@@ -11,7 +11,7 @@ The project uses MongoDB to store product and container information.
 - `name` - product name
 - `nutrition` - nutritional details
 - `upc` - UPC identifier
-- `uuid` - unique ID / QR code
+- `uuid` - unique identifier
 
 ### Container
 - `product` - reference to a product
@@ -41,18 +41,6 @@ The project uses MongoDB to store product and container information.
 Use `python3 scripts/setup.py` once to configure the environment and service.
 Afterwards `python3 scripts/startup.py` simply starts the systemd service.
 
-### Generating and printing QR codes
-
-Run `python3 scripts/generate_qrcodes.py` to create PNG QR codes for each
-container UUID. The images are written to the `qrcodes/` directory. You can
-print these files using any image viewer or the `lpr` command:
-
-```bash
-python3 scripts/generate_qrcodes.py
-lpr qrcodes/<container-uuid>.png
-```
-
-Ensure your printer supports PNG images.
 
 ## Disclaimer
 

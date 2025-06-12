@@ -1,8 +1,5 @@
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request
 import os
-from bson import ObjectId
-import io
-import qrcode
 
 from db import get_db
 from services import container_service
@@ -47,16 +44,6 @@ def delete_container(id):
     return jsonify({"error": "Container not found"}), 404
 
 
-@app.get("/containers/<id>/qrcode")
-def container_qrcode(id):
-    container = container_service.get_container_by_id(id)
-    if not container:
-        return jsonify({"error": "Container not found"}), 404
-    img = qrcode.make(container["uuid"])
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    buf.seek(0)
-    return send_file(buf, mimetype="image/png")
 
 
 if __name__ == "__main__":

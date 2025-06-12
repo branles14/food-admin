@@ -10,7 +10,8 @@ def _normalize(doc: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
         return None
     doc["_id"] = str(doc["_id"])
     if "product" in doc and isinstance(doc["product"], ObjectId):
-        prod = product_service.get_product_by_id(doc["product"])  # returns normalized
+        # Replace ObjectId with the complete product document
+        prod = product_service.get_product_by_id(doc["product"])
         doc["product"] = prod
     return doc
 
