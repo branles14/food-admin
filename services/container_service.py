@@ -42,6 +42,9 @@ def update_container(id_: Any, data: Dict[str, Any]) -> Optional[Dict[str, Any]]
     db = get_db()
     if isinstance(id_, str):
         id_ = ObjectId(id_)
+    data = data.copy()
+    if "product" in data and isinstance(data["product"], str):
+        data["product"] = ObjectId(data["product"])
     db.containers.update_one({"_id": id_}, {"$set": data})
     return get_container_by_id(id_)
 
