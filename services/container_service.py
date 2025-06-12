@@ -17,6 +17,18 @@ def _normalize(doc: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
 
 
 def create_container(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Create a container entry and return the stored document.
+
+    Parameters
+    ----------
+    data : Dict[str, Any]
+        Container fields to persist.
+
+    Returns
+    -------
+    Dict[str, Any]
+        The created container with resolved product data.
+    """
     db = get_db()
     data = data.copy()
     if "product" in data and isinstance(data["product"], str):
@@ -27,6 +39,18 @@ def create_container(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def get_container_by_id(id_: Any) -> Optional[Dict[str, Any]]:
+    """Return a container by its identifier.
+
+    Parameters
+    ----------
+    id_ : Any
+        Container ObjectId or string form.
+
+    Returns
+    -------
+    Optional[Dict[str, Any]]
+        The matching container or ``None`` when absent.
+    """
     db = get_db()
     if isinstance(id_, str):
         id_ = ObjectId(id_)
@@ -34,11 +58,32 @@ def get_container_by_id(id_: Any) -> Optional[Dict[str, Any]]:
 
 
 def list_containers() -> List[Dict[str, Any]]:
+    """Return all containers in the database.
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of container documents.
+    """
     db = get_db()
     return [_normalize(c) for c in db.containers.find()]
 
 
 def update_container(id_: Any, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Update a container and return the modified document.
+
+    Parameters
+    ----------
+    id_ : Any
+        Container ObjectId or string form.
+    data : Dict[str, Any]
+        Fields to update on the container.
+
+    Returns
+    -------
+    Optional[Dict[str, Any]]
+        The updated container or ``None`` if not found.
+    """
     db = get_db()
     if isinstance(id_, str):
         id_ = ObjectId(id_)
@@ -50,6 +95,18 @@ def update_container(id_: Any, data: Dict[str, Any]) -> Optional[Dict[str, Any]]
 
 
 def delete_container(id_: Any) -> bool:
+    """Delete a container by id.
+
+    Parameters
+    ----------
+    id_ : Any
+        Container ObjectId or string form.
+
+    Returns
+    -------
+    bool
+        ``True`` if a document was removed.
+    """
     db = get_db()
     if isinstance(id_, str):
         id_ = ObjectId(id_)
