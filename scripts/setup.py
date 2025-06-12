@@ -57,11 +57,27 @@ def ensure_env_file() -> None:
         print('Created .env from .env.example')
 
 
+def install_docker() -> bool:
+    """Install Docker using the official convenience script."""
+    script = PROJECT_DIR / 'get-docker.sh'
+    print('Docker is not installed. Attempting to install...')
+    steps = [
+        ['curl', '-fsSL', 'https://get.docker.com', '-o', str(script)],
+        ['sudo', 'sh', str(script)],
+    ]
+    for cmd in steps:
+        result = subprocess.run(cmd)
+        if result.returncode != 0:
+            return False
+    script.unlink(missing_ok=True)
+    return True
+
+
 def ensure_docker_mongodb() -> bool:
     """Start a MongoDB Docker container if needed."""
     if not shutil.which('docker'):
-        print('Docker is not installed.')
-        return False
+        if not install_docker():
+            return False
 
     container_name = 'fooddb'
     check = subprocess.run(
