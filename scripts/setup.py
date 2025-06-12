@@ -73,11 +73,32 @@ def install_docker() -> bool:
     return True
 
 
+def _has_docker_permissions() -> bool:
+    """Return True if the current user can run Docker without sudo."""
+    result = subprocess.run(['id', '-nG'], capture_output=True, text=True)
+    if result.returncode != 0:
+        return False
+    groups = result.stdout.strip().split()
+    return os.geteuid() == 0 or 'docker' in groups
+
+
+def ensure_docker_permissions() -> bool:
+    """Warn if the current user is not in the docker group."""
+    if _has_docker_permissions():
+        return True
+    print('Warning: current user does not belong to the "docker" group.')
+    print('Add your user to the group and log out/in or run `newgrp docker` before proceeding.')
+    return False
+
+
 def ensure_docker_mongodb() -> bool:
     """Start a MongoDB Docker container if needed."""
     if not shutil.which('docker'):
         if not install_docker():
             return False
+
+    if not ensure_docker_permissions():
+        return False
 
     container_name = 'fooddb'
     check = subprocess.run(
