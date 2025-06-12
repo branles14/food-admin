@@ -82,6 +82,16 @@ def _has_docker_permissions() -> bool:
     return os.geteuid() == 0 or 'docker' in groups
 
 
+def _is_container_running(name: str) -> bool:
+    """Return True if the given Docker container is currently running."""
+    result = subprocess.run(
+        ['docker', 'inspect', '-f', '{{.State.Running}}', name],
+        text=True,
+        capture_output=True,
+    )
+    return result.returncode == 0 and result.stdout.strip() == 'true'
+
+
 def ensure_docker_permissions() -> bool:
     """Warn if the current user is not in the docker group."""
     if _has_docker_permissions():
@@ -126,13 +136,17 @@ def ensure_docker_mongodb() -> bool:
             print(result.stdout.strip() or result.stderr.strip())
         return result.returncode == 0
 
+    if _is_container_running(container_name):
+        print('MongoDB Docker container already running.')
+        return True
+
     print('Starting existing MongoDB Docker container...')
     result = subprocess.run(
         ['docker', 'start', container_name], text=True, capture_output=True
     )
-    if result.returncode != 0:
+    if result.returncode != 0 and 'already running' not in result.stderr:
         print(result.stdout.strip() or result.stderr.strip())
-    return result.returncode == 0
+    return result.returncode == 0 or 'already running' in result.stderr
 
 
 def ensure_mongodb() -> None:
