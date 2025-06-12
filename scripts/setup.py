@@ -57,36 +57,44 @@ def ensure_env_file() -> None:
         print('Created .env from .env.example')
 
 
+def ensure_docker_mongodb() -> bool:
+    """Start a MongoDB Docker container if needed."""
+    if not shutil.which('docker'):
+        print('Docker is not installed.')
+        return False
+
+    container_name = 'fooddb'
+    check = subprocess.run(
+        ['docker', 'inspect', container_name],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    if check.returncode != 0:
+        print('Creating MongoDB Docker container...')
+        result = subprocess.run([
+            'docker',
+            'run',
+            '--name',
+            container_name,
+            '-d',
+            '-p',
+            '27017:27017',
+            'mongo:7',
+        ])
+        return result.returncode == 0
+
+    print('Starting existing MongoDB Docker container...')
+    result = subprocess.run(['docker', 'start', container_name])
+    return result.returncode == 0
+
+
 def ensure_mongodb() -> None:
-    """Ensure MongoDB server is installed and running."""
-    if shutil.which('mongod'):
-        subprocess.run(['sudo', 'systemctl', 'enable', '--now', 'mongod'])
+    """Ensure MongoDB is running in a Docker container."""
+    if ensure_docker_mongodb():
         return
 
-    print('MongoDB server not found. Attempting to install via official repository...')
-    # Step 1: Import the public key
-    subprocess.run(
-        'curl -fsSL https://pgp.mongodb.com/server-7.0.asc | '
-        'sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor',
-        shell=True,
-    )
-    # Step 2: Add the MongoDB repo
-    subprocess.run(
-        'echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] '
-        'https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/7.0 multiverse" | '
-        'sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list',
-        shell=True,
-    )
-    # Step 3: Update packages and install MongoDB
-    subprocess.run(['sudo', 'apt', 'update'])
-    result = subprocess.run(['sudo', 'apt', 'install', '-y', 'mongodb-org'])
-    if result.returncode != 0:
-        print('Failed to install MongoDB. Please install it manually.')
-        return
-    # Step 4: Start the service
-    subprocess.run(['sudo', 'systemctl', 'enable', '--now', 'mongod'])
-    # Step 5: Check status
-    subprocess.run(['systemctl', 'status', 'mongod'])
+    print('Failed to start MongoDB Docker container.')
+    print('Please verify Docker is installed and the current user has permission to run Docker commands.')
 
 
 def create_service() -> None:
@@ -97,7 +105,7 @@ def create_service() -> None:
     service_content = textwrap.dedent(f"""
     [Unit]
     Description=Food Admin Service
-    After=network.target mongod.service
+    After=network.target docker.service
 
     [Service]
     Type=simple

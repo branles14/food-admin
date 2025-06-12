@@ -22,14 +22,13 @@ The project uses MongoDB to store product and container information.
 ## Prerequisites
 
 - Python 3
-- MongoDB (the setup script will install and start `mongod` if needed)
+ - Docker (used to run MongoDB)
 
 ## Setup
 
 1. Clone this repository.
-2. Run `python3 scripts/setup.py` to install dependencies, set up MongoDB and
-   create the service. The script adds the official MongoDB 7.0 repository and
-   ensures the `mongod` service is enabled and running.
+2. Run `python3 scripts/setup.py` to install dependencies, start MongoDB in a
+   Docker container, and create the service.
 3. Start the service with `python3 scripts/startup.py`. This command prints
    the systemd service status so you can confirm it started correctly.
 4. If needed, inspect the service with `sudo systemctl status foodadmin`.
