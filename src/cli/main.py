@@ -26,6 +26,10 @@ def add_container(args: argparse.Namespace) -> None:
         "quantity": args.quantity,
         "opened": args.opened,
         "remaining": args.remaining,
+        "expiration_date": args.expiration_date,
+        "location": args.location,
+        "tags": args.tags.split(",") if args.tags else None,
+        "container_weight": args.container_weight,
     }
     container = container_service.create_container(conn, data)
     print(container)
@@ -42,6 +46,14 @@ def update_container(args: argparse.Namespace) -> None:
         data["opened"] = args.opened
     if args.remaining is not None:
         data["remaining"] = args.remaining
+    if args.expiration_date is not None:
+        data["expiration_date"] = args.expiration_date
+    if args.location is not None:
+        data["location"] = args.location
+    if args.tags is not None:
+        data["tags"] = args.tags.split(",") if args.tags else None
+    if args.container_weight is not None:
+        data["container_weight"] = args.container_weight
     container = container_service.update_container(conn, args.id, data)
     print(container)
 
@@ -64,6 +76,10 @@ def build_parser() -> argparse.ArgumentParser:
     add_cmd.add_argument("--quantity", type=int, required=False)
     add_cmd.add_argument("--opened", action="store_true")
     add_cmd.add_argument("--remaining", type=float, required=False)
+    add_cmd.add_argument("--expiration-date", required=False)
+    add_cmd.add_argument("--location", required=False)
+    add_cmd.add_argument("--tags", required=False)
+    add_cmd.add_argument("--container-weight", type=int, required=False)
     add_cmd.set_defaults(func=add_container)
 
     upd_cmd = sub.add_parser("update", help="Update a container")
@@ -72,6 +88,10 @@ def build_parser() -> argparse.ArgumentParser:
     upd_cmd.add_argument("--quantity", type=int)
     upd_cmd.add_argument("--opened", type=bool)
     upd_cmd.add_argument("--remaining", type=float)
+    upd_cmd.add_argument("--expiration-date")
+    upd_cmd.add_argument("--location")
+    upd_cmd.add_argument("--tags")
+    upd_cmd.add_argument("--container-weight", type=int)
     upd_cmd.set_defaults(func=update_container)
 
     del_cmd = sub.add_parser("delete", help="Delete a container")
