@@ -38,7 +38,7 @@ The project uses SQLite to store product and container information.
 4. Start the service with `python3 scripts/startup.py` to launch the FastAPI
    app using `python -m src.cli.main`.
 5. Visit `http://localhost:3000/health` to verify the service is running.
-6. (Optional) Seed example data with `python3 seeds.py`.
+6. (Optional) Seed example data with `python3 scripts/seeds.py`.
 7. Retrieve the current inventory with `curl http://localhost:3000/containers`.
 8. Run `python3 scripts/backup.py` to create a timestamped backup in the
    directory specified by `BACKUP_DIR`.
