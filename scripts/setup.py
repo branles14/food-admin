@@ -8,7 +8,7 @@ from pathlib import Path
 import textwrap
 import sqlite3
 
-from db import get_db
+from src.db import get_db
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 SERVICE_FILE = "/etc/systemd/system/foodadmin.service"
@@ -88,7 +88,7 @@ def create_service() -> None:
     [Service]
     Type=simple
     WorkingDirectory={PROJECT_DIR}
-    ExecStart=/usr/bin/uvicorn app:app --host 0.0.0.0 --port ${{PORT:-3000}}
+    ExecStart=/usr/bin/python3 -m src.cli.main
     Restart=always
     EnvironmentFile={PROJECT_DIR / '.env'}
 
