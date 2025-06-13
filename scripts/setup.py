@@ -36,6 +36,7 @@ def ensure_dependencies() -> None:
         import fastapi  # type: ignore
         import uvicorn  # type: ignore
         import dotenv  # type: ignore
+        import sqlalchemy  # type: ignore
     except Exception:
         print("Installing Python dependencies...")
         result = subprocess.run(
@@ -67,10 +68,11 @@ def init_database(db_url: str) -> None:
     if not db_url.startswith("sqlite:///"):
         return
 
-    path = Path(db_url[len("sqlite:///"):])
+    path = Path(db_url[len("sqlite:///") :])
     path.parent.mkdir(parents=True, exist_ok=True)
     os.environ["DATABASE_URL"] = db_url
     get_db().close()
+
 
 def create_service() -> None:
     """Create the systemd service file if it does not exist."""
