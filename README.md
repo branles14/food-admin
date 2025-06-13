@@ -34,8 +34,9 @@ The project uses SQLite to store product and container information.
 2. Copy `.env.example` to `.env` and adjust the paths if desired. The default
    configuration stores data locally under the `data/` directory using a SQLite
    database at `data/inventory.db`.
-3. Run `python3 scripts/setup.py` to install dependencies and create the
-   systemd service. The script creates the SQLite database if it does not exist.
+3. Run `python3 scripts/setup.py` to install dependencies and create or update
+   the systemd service. The script also creates the SQLite database if it does
+   not exist.
 4. Start the service with `python3 scripts/startup.py` to launch the FastAPI
    app using `python -m src.cli.main`.
 5. Visit `http://localhost:3000/health` to verify the service is running.
