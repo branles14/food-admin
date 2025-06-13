@@ -30,7 +30,8 @@ def get_dotenv_value(key: str) -> str:
 def ensure_dependencies() -> None:
     """Install required Python packages."""
     try:
-        import flask  # type: ignore
+        import fastapi  # type: ignore
+        import uvicorn  # type: ignore
         import dotenv  # type: ignore
     except Exception:
         print("Installing Python dependencies...")
@@ -181,7 +182,7 @@ def create_service() -> None:
     [Service]
     Type=simple
     WorkingDirectory={PROJECT_DIR}
-    ExecStart=/usr/bin/python3 {PROJECT_DIR / 'app.py'}
+    ExecStart=/usr/bin/uvicorn app:app --host 0.0.0.0 --port ${{PORT:-3000}}
     Restart=always
     EnvironmentFile={PROJECT_DIR / '.env'}
 
