@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import JSONResponse
+from starlette.concurrency import run_in_threadpool
 from sqlite3 import Connection
 
 from src.db import get_db
@@ -30,35 +31,39 @@ class ContainerUpdate(ContainerCreate):
 app = FastAPI()
 
 
-def db_conn() -> Connection:
+async def db_conn() -> Connection:
     return get_db()
 
 
 @app.get("/health")
-def health(db: Connection = Depends(db_conn)) -> JSONResponse:
+async def health(db: Connection = Depends(db_conn)) -> JSONResponse:
     try:
-        db.execute("SELECT 1")
+        await run_in_threadpool(db.execute, "SELECT 1")
         return JSONResponse({"status": "ok"})
     except Exception as exc:  # pragma: no cover - simple healthcheck
         raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.get("/containers")
-def list_containers(db: Connection = Depends(db_conn)) -> Any:
-    return container_service.list_containers(db)
+async def list_containers(db: Connection = Depends(db_conn)) -> Any:
+    return await run_in_threadpool(container_service.list_containers, db)
 
 
 @app.post("/containers", status_code=201)
-def create_container(data: ContainerCreate, db: Connection = Depends(db_conn)) -> Any:
-    return container_service.create_container(db, data.dict(exclude_unset=True))
+async def create_container(
+    data: ContainerCreate, db: Connection = Depends(db_conn)
+) -> Any:
+    return await run_in_threadpool(
+        container_service.create_container, db, data.dict(exclude_unset=True)
+    )
 
 
 @app.patch("/containers/{id}")
-def update_container(
+async def update_container(
     id: Any, data: ContainerUpdate, db: Connection = Depends(db_conn)
 ) -> Any:
-    container = container_service.update_container(
-        db, id, data.dict(exclude_unset=True)
+    container = await run_in_threadpool(
+        container_service.update_container, db, id, data.dict(exclude_unset=True)
     )
     if not container:
         raise HTTPException(status_code=404, detail="Container not found")
@@ -66,8 +71,9 @@ def update_container(
 
 
 @app.delete("/containers/{id}")
-def delete_container(id: Any, db: Connection = Depends(db_conn)) -> Any:
-    if container_service.delete_container(db, id):
+async def delete_container(id: Any, db: Connection = Depends(db_conn)) -> Any:
+    deleted = await run_in_threadpool(container_service.delete_container, db, id)
+    if deleted:
         return {"message": "Container deleted"}
     raise HTTPException(status_code=404, detail="Container not found")
 
