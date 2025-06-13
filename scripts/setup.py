@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Setup script to install dependencies, ensure MongoDB and configure the service."""
+"""Setup script to install dependencies and configure the service."""
 import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 import textwrap
+import sqlite3
+
+from db import get_db
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 SERVICE_FILE = "/etc/systemd/system/foodadmin.service"
@@ -59,114 +62,15 @@ def ensure_env_file() -> None:
         print("Created .env from .env.example")
 
 
-def install_docker() -> bool:
-    """Install Docker using the official convenience script."""
-    script = PROJECT_DIR / "get-docker.sh"
-    print("Docker is not installed. Attempting to install...")
-    steps = [
-        ["curl", "-fsSL", "https://get.docker.com", "-o", str(script)],
-        ["sudo", "sh", str(script)],
-    ]
-    for cmd in steps:
-        result = subprocess.run(cmd)
-        if result.returncode != 0:
-            return False
-    script.unlink(missing_ok=True)
-    return True
-
-
-def _has_docker_permissions() -> bool:
-    """Return True if the current user can run Docker without sudo."""
-    result = subprocess.run(["id", "-nG"], capture_output=True, text=True)
-    if result.returncode != 0:
-        return False
-    groups = result.stdout.strip().split()
-    return os.geteuid() == 0 or "docker" in groups
-
-
-def _is_container_running(name: str) -> bool:
-    """Return True if the given Docker container is currently running."""
-    result = subprocess.run(
-        ["docker", "inspect", "-f", "{{.State.Running}}", name],
-        text=True,
-        capture_output=True,
-    )
-    return result.returncode == 0 and result.stdout.strip() == "true"
-
-
-def ensure_docker_permissions() -> bool:
-    """Warn if the current user is not in the docker group."""
-    if _has_docker_permissions():
-        return True
-    print('Warning: current user does not belong to the "docker" group.')
-    print(
-        "Add your user to the group and log out/in or run `newgrp docker` before proceeding."
-    )
-    return False
-
-
-def ensure_docker_mongodb() -> bool:
-    """Start a MongoDB Docker container if needed."""
-    if not shutil.which("docker"):
-        if not install_docker():
-            return False
-
-    if not ensure_docker_permissions():
-        return False
-
-    container_name = "fooddb"
-    check = subprocess.run(
-        ["docker", "inspect", container_name],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    if check.returncode != 0:
-        print("Creating MongoDB Docker container...")
-        result = subprocess.run(
-            [
-                "docker",
-                "run",
-                "--name",
-                container_name,
-                "-d",
-                "-p",
-                "27017:27017",
-                "mongo:7",
-            ],
-            text=True,
-            capture_output=True,
-        )
-        if result.returncode != 0:
-            print(result.stdout.strip() or result.stderr.strip())
-        return result.returncode == 0
-
-    if _is_container_running(container_name):
-        print("MongoDB Docker container already running.")
-        return True
-
-    print("Starting existing MongoDB Docker container...")
-    result = subprocess.run(
-        ["docker", "start", container_name], text=True, capture_output=True
-    )
-    if result.returncode != 0 and "already running" not in result.stderr:
-        print(result.stdout.strip() or result.stderr.strip())
-    return result.returncode == 0 or "already running" in result.stderr
-
-
-def ensure_mongodb() -> None:
-    """Ensure MongoDB is running in a Docker container."""
-    if ensure_docker_mongodb():
+def init_database(db_url: str) -> None:
+    """Create the SQLite database file and directory if needed."""
+    if not db_url.startswith("sqlite:///"):
         return
 
-    print("Failed to start MongoDB Docker container.")
-    print(
-        "Please verify Docker is installed and the current user has permission to run Docker commands."
-    )
-    print("If Docker reports a permission error, add your user to the docker group:")
-    print("  sudo usermod -aG docker $USER")
-    print("After running the command, log out and back in, then re-run:")
-    print("  python3 scripts/setup.py")
-
+    path = Path(db_url[len("sqlite:///"):])
+    path.parent.mkdir(parents=True, exist_ok=True)
+    os.environ["DATABASE_URL"] = db_url
+    get_db().close()
 
 def create_service() -> None:
     """Create the systemd service file if it does not exist."""
@@ -177,7 +81,7 @@ def create_service() -> None:
         f"""
     [Unit]
     Description=Food Admin Service
-    After=network.target docker.service
+    After=network.target
 
     [Service]
     Type=simple
@@ -208,6 +112,8 @@ def main() -> None:
         print("DATABASE_URL is not configured. Defaulting to sqlite:///foodadmin.db")
         db_url = "sqlite:///foodadmin.db"
         os.environ["DATABASE_URL"] = db_url
+
+    init_database(db_url)
     create_service()
 
     print("Setup complete. Run `python3 scripts/startup.py` to start the service.")
