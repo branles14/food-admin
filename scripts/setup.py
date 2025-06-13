@@ -25,6 +25,7 @@ def ensure_dependencies() -> None:
         importlib.import_module("uvicorn")
         importlib.import_module("dotenv")
         importlib.import_module("sqlalchemy")
+        importlib.import_module("httpx")
     except Exception:
         print("Installing Python dependencies...")
         result = subprocess.run(
@@ -63,9 +64,14 @@ def init_database(db_url: str) -> None:
 
 
 def create_service() -> None:
-    """Create the systemd service file if it does not exist."""
+    """Create or update the systemd service file."""
+    expected_exec = "/usr/bin/python3 -m src.cli.main"
+    action = "Created"
     if os.path.isfile(SERVICE_FILE):
-        return
+        with open(SERVICE_FILE) as f:
+            if expected_exec in f.read():
+                return
+        action = "Updated"
 
     service_content = textwrap.dedent(
         f"""
@@ -76,7 +82,7 @@ def create_service() -> None:
     [Service]
     Type=simple
     WorkingDirectory={PROJECT_DIR}
-    ExecStart=/usr/bin/python3 -m src.cli.main
+    ExecStart={expected_exec}
     Restart=always
     EnvironmentFile={PROJECT_DIR / '.env'}
 
@@ -90,7 +96,7 @@ def create_service() -> None:
     subprocess.run(["sudo", "mv", "foodadmin.service", SERVICE_FILE])
     subprocess.run(["sudo", "systemctl", "daemon-reload"])
     subprocess.run(["sudo", "systemctl", "enable", "foodadmin"])
-    print("Created systemd service at", SERVICE_FILE)
+    print(f"{action} systemd service at {SERVICE_FILE}")
 
 
 def main() -> None:
