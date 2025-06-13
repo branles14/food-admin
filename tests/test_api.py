@@ -1,4 +1,3 @@
-import json
 from fastapi.testclient import TestClient
 
 from src.api.app import app, db_conn as app_db_conn
@@ -6,6 +5,7 @@ from src.services import product_service
 
 
 # reuse db_conn fixture from conftest
+
 
 def test_container_api_crud(db_conn):
     # Override dependency to use in-memory db
@@ -15,7 +15,12 @@ def test_container_api_crud(db_conn):
     # create product for container reference
     product = product_service.create_product(
         db_conn,
-        {"name": "Bread", "upc": "111", "uuid": "uuid", "nutrition": {"cals": 50}},
+        {
+            "name": "Bread",
+            "upc": "111",
+            "uuid": "uuid",
+            "nutrition": {"cals": 50},
+        },
     )
 
     # create container

@@ -1,9 +1,3 @@
-import os
-import json
-import tempfile
-from argparse import Namespace
-from pathlib import Path
-
 import pytest
 
 from src.cli import main as cli_main
@@ -60,13 +54,17 @@ def test_cli_add_update_delete(monkeypatch, tmp_path, tmp_db):
 
 
 def test_cli_update_extra_and_serve(monkeypatch, tmp_db):
-    add_out = run_cli([
-        "add",
-        "--product",
-        "2",
-        "--quantity",
-        "1",
-    ], monkeypatch, tmp_db)
+    add_out = run_cli(
+        [
+            "add",
+            "--product",
+            "2",
+            "--quantity",
+            "1",
+        ],
+        monkeypatch,
+        tmp_db,
+    )
     cid = add_out[0]["id"]
 
     update_out = run_cli(

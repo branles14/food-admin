@@ -63,7 +63,10 @@ async def update_container(
     id: Any, data: ContainerUpdate, db: Connection = Depends(db_conn)
 ) -> Any:
     container = await run_in_threadpool(
-        container_service.update_container, db, id, data.dict(exclude_unset=True)
+        container_service.update_container,
+        db,
+        id,
+        data.dict(exclude_unset=True),
     )
     if not container:
         raise HTTPException(status_code=404, detail="Container not found")
@@ -72,7 +75,11 @@ async def update_container(
 
 @app.delete("/containers/{id}")
 async def delete_container(id: Any, db: Connection = Depends(db_conn)) -> Any:
-    deleted = await run_in_threadpool(container_service.delete_container, db, id)
+    deleted = await run_in_threadpool(
+        container_service.delete_container,
+        db,
+        id,
+    )
     if deleted:
         return {"message": "Container deleted"}
     raise HTTPException(status_code=404, detail="Container not found")
