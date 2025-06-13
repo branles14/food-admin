@@ -5,7 +5,7 @@
    ```bash
    python3 -m venv .venv && source .venv/bin/activate
    ```
-3. Install dependencies:
+3. Install dependencies (includes a pinned httpx version):
    ```bash
    pip install -r requirements.txt
    ```
