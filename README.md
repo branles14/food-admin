@@ -2,6 +2,7 @@
 
 Food Admin is a simple project for tracking food inventory and containers.
 It helps you manage which products you own and where they are stored.
+See the [docs](docs/) directory for an overview of the architecture, setup instructions and usage examples.
 
 ## Features
 
