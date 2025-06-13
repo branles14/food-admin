@@ -1,3 +1,9 @@
+from pathlib import Path
+import sys
+
+PROJECT_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_DIR))
+
 from src.db import get_db
 from src.services import container_service, product_service
 

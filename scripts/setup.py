@@ -3,16 +3,18 @@
 import os
 import shutil
 import subprocess
-import sys
-from pathlib import Path
 import textwrap
 import importlib
+from pathlib import Path
+import sys
+
+PROJECT_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_DIR))
 
 from src import config
 
 from src.db import get_db
 
-PROJECT_DIR = Path(__file__).resolve().parents[1]
 SERVICE_FILE = "/etc/systemd/system/foodadmin.service"
 
 
@@ -54,7 +56,7 @@ def init_database(db_url: str) -> None:
     if not db_url.startswith("sqlite:///"):
         return
 
-    path = Path(db_url[len("sqlite:///"):])
+    path = Path(db_url[len("sqlite:///") :])
     path.parent.mkdir(parents=True, exist_ok=True)
     os.environ["DATABASE_URL"] = db_url
     get_db().close()
