@@ -36,7 +36,8 @@ The project uses SQLite to store product and container information.
    database at `data/inventory.db`.
 3. Run `python3 scripts/setup.py` to install dependencies and create or update
    the systemd service. The script also creates the SQLite database if it does
-   not exist.
+   not exist. The `requirements.txt` file pins `httpx` to versions
+   `>=0.27,<0.28` for compatibility.
 4. Start the service with `python3 scripts/startup.py` to launch the FastAPI
    app using `python -m src.cli.main`.
 5. Visit `http://localhost:3000/health` to verify the service is running.
