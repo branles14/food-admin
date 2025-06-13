@@ -6,28 +6,13 @@ import subprocess
 import sys
 from pathlib import Path
 import textwrap
-import sqlite3
+
+from src import config
 
 from src.db import get_db
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 SERVICE_FILE = "/etc/systemd/system/foodadmin.service"
-
-
-def get_dotenv_value(key: str) -> str:
-    env_path = PROJECT_DIR / ".env"
-    if not env_path.is_file():
-        return ""
-    with open(env_path) as env_file:
-        for line in env_file:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if "=" in line:
-                k, v = line.split("=", 1)
-                if k.strip() == key:
-                    return v.strip()
-    return ""
 
 
 def ensure_dependencies() -> None:
@@ -109,12 +94,7 @@ def main() -> None:
     ensure_env_file()
     ensure_dependencies()
 
-    db_url = os.environ.get("DATABASE_URL") or get_dotenv_value("DATABASE_URL")
-    if not db_url or db_url.startswith("your-"):
-        print("DATABASE_URL is not configured. Defaulting to sqlite:///foodadmin.db")
-        db_url = "sqlite:///foodadmin.db"
-        os.environ["DATABASE_URL"] = db_url
-
+    db_url = config.get_database_url()
     init_database(db_url)
     create_service()
 
