@@ -8,12 +8,11 @@ import importlib
 from pathlib import Path
 import sys
 
+from src import config
+from src.db import get_db
+
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_DIR))
-
-from src import config
-
-from src.db import get_db
 
 SERVICE_FILE = "/etc/systemd/system/foodadmin.service"
 
@@ -57,7 +56,8 @@ def init_database(db_url: str) -> None:
     if not db_url.startswith("sqlite:///"):
         return
 
-    path = Path(db_url[len("sqlite:///") :])
+    start = len("sqlite:///")
+    path = Path(db_url[start:])
     path.parent.mkdir(parents=True, exist_ok=True)
     os.environ["DATABASE_URL"] = db_url
     get_db().close()
@@ -107,7 +107,12 @@ def main() -> None:
     init_database(db_url)
     create_service()
 
-    print("Setup complete. Run `python3 scripts/startup.py` to start the service.")
+    # fmt: off
+    print(
+        "Setup complete. Run `python3 scripts/startup.py` "
+        "to start the service."
+    )
+    # fmt: on
 
 
 if __name__ == "__main__":

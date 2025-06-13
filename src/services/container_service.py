@@ -8,7 +8,10 @@ from sqlite3 import Connection
 from . import product_service
 
 
-def _normalize(conn: Connection, row: Optional[Any]) -> Optional[Dict[str, Any]]:
+def _normalize(
+    conn: Connection,
+    row: Optional[Any],
+) -> Optional[Dict[str, Any]]:
     if row is None:
         return None
     data = dict(row)
@@ -32,10 +35,14 @@ def create_container(conn: Connection, data: Dict[str, Any]) -> Dict[str, Any]:
     else:
         product_id = None
     data.setdefault("uuid", str(uuid4()))
-    tags = json.dumps(data.get("tags")) if data.get("tags") is not None else None
+    tag_value = data.get("tags")
+    tags = json.dumps(tag_value) if tag_value is not None else None
     cur = conn.execute(
-        "INSERT INTO containers (product_id, quantity, opened, remaining, uuid, expiration_date, location, tags, container_weight)"
-        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (
+            "INSERT INTO containers (product_id, quantity, opened, remaining, "
+            "uuid, expiration_date, location, tags, container_weight)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        ),
         (
             product_id,
             data.get("quantity"),
@@ -52,7 +59,10 @@ def create_container(conn: Connection, data: Dict[str, Any]) -> Dict[str, Any]:
     return get_container_by_id(conn, cur.lastrowid)
 
 
-def get_container_by_id(conn: Connection, id_: Any) -> Optional[Dict[str, Any]]:
+def get_container_by_id(
+    conn: Connection,
+    id_: Any,
+) -> Optional[Dict[str, Any]]:
     cur = conn.execute("SELECT * FROM containers WHERE id = ?", (int(id_),))
     row = cur.fetchone()
     return _normalize(conn, row)
@@ -94,14 +104,18 @@ def update_container(
         values.append(data["location"])
     if "tags" in data:
         fields.append("tags = ?")
-        values.append(json.dumps(data["tags"]) if data["tags"] is not None else None)
+        tag_value = data.get("tags")
+        values.append(json.dumps(tag_value) if tag_value is not None else None)
     if "container_weight" in data:
         fields.append("container_weight = ?")
         values.append(data["container_weight"])
     if not fields:
         return get_container_by_id(conn, id_)
     values.append(int(id_))
-    conn.execute(f"UPDATE containers SET {', '.join(fields)} WHERE id = ?", values)
+    conn.execute(
+        f"UPDATE containers SET {', '.join(fields)} WHERE id = ?",
+        values,
+    )
     conn.commit()
     return get_container_by_id(conn, id_)
 

@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 import shutil
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
+
+from src import config
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_DIR))
-
-from src import config
 
 
 def main() -> None:
@@ -18,7 +18,8 @@ def main() -> None:
     if not db_url.startswith("sqlite:///"):
         raise SystemExit("Only SQLite backups are supported")
 
-    db_path = Path(db_url[len("sqlite:///") :])
+    start = len("sqlite:///")
+    db_path = Path(db_url[start:])
     if not db_path.exists():
         raise SystemExit(f"Database file {db_path} does not exist")
 

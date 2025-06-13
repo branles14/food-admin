@@ -1,16 +1,9 @@
 import sqlite3
-from pathlib import Path
 from typing import Generator
-
-import sys
 
 import pytest
 
-project_root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root))
-sys.path.insert(0, str(project_root / "src"))
-
-from db import _init_db
+from src.db import _init_db
 
 
 @pytest.fixture()

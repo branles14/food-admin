@@ -16,9 +16,16 @@ def _normalize(row: Optional[Any]) -> Optional[Dict[str, Any]]:
 
 
 def create_product(conn: Connection, data: Dict[str, Any]) -> Dict[str, Any]:
-    nutrition = json.dumps(data.get("nutrition")) if data.get("nutrition") else None
+    nutrition_value = data.get("nutrition")
+    nutrition = json.dumps(nutrition_value) if nutrition_value else None
+    # fmt: off
+    query = (
+        "INSERT INTO products (name, upc, uuid, nutrition) "
+        "VALUES (?, ?, ?, ?)"
+    )
+    # fmt: on
     cur = conn.execute(
-        "INSERT INTO products (name, upc, uuid, nutrition) VALUES (?, ?, ?, ?)",
+        query,
         (
             data.get("name"),
             data.get("upc"),
@@ -57,11 +64,18 @@ def update_product(
         values.append(data["uuid"])
     if "nutrition" in data:
         fields.append("nutrition = ?")
-        values.append(json.dumps(data["nutrition"]) if data["nutrition"] else None)
+        # fmt: off
+        values.append(
+            json.dumps(data["nutrition"]) if data["nutrition"] else None
+        )
+        # fmt: on
     if not fields:
         return get_product_by_id(conn, id_)
     values.append(int(id_))
-    conn.execute(f"UPDATE products SET {', '.join(fields)} WHERE id = ?", values)
+    conn.execute(
+        f"UPDATE products SET {', '.join(fields)} WHERE id = ?",
+        values,
+    )
     conn.commit()
     return get_product_by_id(conn, id_)
 
