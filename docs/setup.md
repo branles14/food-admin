@@ -19,3 +19,15 @@
    python3 scripts/startup.py
    ```
 7. Verify the API is running at [http://localhost:3000/health](http://localhost:3000/health).
+
+## Scheduled Backups
+
+Automate database backups by running `scripts/backup.py` through cron. The script relies on the `DATA_DIR`, `DATABASE_URL` and `BACKUP_DIR` environment variables which should mirror your `.env` configuration.
+
+Example entry for a daily backup at 2 AM:
+
+```cron
+0 2 * * * cd /path/to/food-admin && /path/to/venv/bin/python scripts/backup.py
+```
+
+This keeps a timestamped copy of the SQLite database in `$BACKUP_DIR`.

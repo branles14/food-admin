@@ -44,7 +44,9 @@ The project uses SQLite to store product and container information.
 7. Retrieve the current inventory with `curl http://localhost:3000/containers`.
 8. Run `python3 scripts/backup.py` to create a timestamped backup in the
    directory specified by `BACKUP_DIR`. See the [Backups section](docs/usage.md#backups)
-   in the usage guide for more details.
+   in the usage guide for more details. To automate backups with cron,
+   follow the [scheduled backups instructions](docs/setup.md#scheduled-backups)
+   in the setup guide.
 
 ## CLI Usage
 
