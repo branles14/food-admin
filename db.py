@@ -1,17 +1,58 @@
+"""Database access helpers."""
+
+from __future__ import annotations
+
 import os
-from pymongo import MongoClient
+import sqlite3
+from sqlite3 import Connection
+from typing import Optional
 
-_db = None
-_client = None
+_conn: Optional[Connection] = None
 
 
-def get_db():
-    """Return a MongoDB database connection."""
-    global _db, _client
-    if _db is not None:
-        return _db
-    uri = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
-    db_name = os.environ.get("MONGODB_DB", "foodadmin")
-    _client = MongoClient(uri)
-    _db = _client.get_database(db_name)
-    return _db
+def _init_db(conn: Connection) -> None:
+    """Create tables if they do not already exist."""
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            upc TEXT,
+            uuid TEXT,
+            nutrition TEXT
+        )
+    """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS containers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id INTEGER,
+            quantity INTEGER,
+            opened BOOLEAN,
+            remaining REAL,
+            uuid TEXT
+        )
+    """
+    )
+    conn.commit()
+
+
+def get_db() -> Connection:
+    """Return an SQLite database connection."""
+
+    global _conn
+    if _conn is not None:
+        return _conn
+
+    url = os.environ.get("DATABASE_URL", "sqlite:///foodadmin.db")
+    if url.startswith("sqlite:///"):
+        path = url[len("sqlite:///") :]
+    else:
+        path = url
+
+    _conn = sqlite3.connect(path, check_same_thread=False)
+    _conn.row_factory = sqlite3.Row
+    _init_db(_conn)
+    return _conn
