@@ -43,6 +43,17 @@ The project uses SQLite to store product and container information.
 8. Run `python3 scripts/backup.py` to create a timestamped backup in the
    directory specified by `BACKUP_DIR`.
 
+## CLI Usage
+
+The command `python -m src.cli.main` exposes subcommands like `add` and `update`.
+Both accept mutually exclusive `--opened` and `--no-opened` flags to set the
+container state.
+
+```bash
+python -m src.cli.main add --product 1 --quantity 2 --opened
+python -m src.cli.main update 5 --no-opened
+```
+
 ## Running Tests
 
 Unit tests are located under the `tests/` directory and use `pytest`. Install
