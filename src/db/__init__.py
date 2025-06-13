@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-import os
+from pathlib import Path
 import sqlite3
 from sqlite3 import Connection
 from typing import Optional
+
+from src import config
 
 _conn: Optional[Connection] = None
 
@@ -46,11 +48,13 @@ def get_db() -> Connection:
     if _conn is not None:
         return _conn
 
-    url = os.environ.get("DATABASE_URL", "sqlite:///foodadmin.db")
+    url = config.get_database_url()
     if url.startswith("sqlite:///"):
         path = url[len("sqlite:///") :]
     else:
         path = url
+
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
 
     _conn = sqlite3.connect(path, check_same_thread=False)
     _conn.row_factory = sqlite3.Row
