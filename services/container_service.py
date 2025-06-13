@@ -2,25 +2,24 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
+from sqlite3 import Connection
 
-from db import get_db
 from . import product_service
 
 
-def _normalize(row: Optional[Any]) -> Optional[Dict[str, Any]]:
+def _normalize(conn: Connection, row: Optional[Any]) -> Optional[Dict[str, Any]]:
     if row is None:
         return None
     data = dict(row)
     product_id = data.pop("product_id", None)
     if product_id is not None:
-        data["product"] = product_service.get_product_by_id(product_id)
+        data["product"] = product_service.get_product_by_id(conn, product_id)
     if "uuid" in data:
         data["uuid"] = data["uuid"]
     return data
 
 
-def create_container(data: Dict[str, Any]) -> Dict[str, Any]:
-    conn = get_db()
+def create_container(conn: Connection, data: Dict[str, Any]) -> Dict[str, Any]:
     data = data.copy()
     product = data.get("product")
     if isinstance(product, dict):
@@ -41,24 +40,23 @@ def create_container(data: Dict[str, Any]) -> Dict[str, Any]:
         ),
     )
     conn.commit()
-    return get_container_by_id(cur.lastrowid)
+    return get_container_by_id(conn, cur.lastrowid)
 
 
-def get_container_by_id(id_: Any) -> Optional[Dict[str, Any]]:
-    conn = get_db()
+def get_container_by_id(conn: Connection, id_: Any) -> Optional[Dict[str, Any]]:
     cur = conn.execute("SELECT * FROM containers WHERE id = ?", (int(id_),))
     row = cur.fetchone()
-    return _normalize(row)
+    return _normalize(conn, row)
 
 
-def list_containers() -> List[Dict[str, Any]]:
-    conn = get_db()
+def list_containers(conn: Connection) -> List[Dict[str, Any]]:
     cur = conn.execute("SELECT * FROM containers")
-    return [_normalize(row) for row in cur.fetchall()]
+    return [_normalize(conn, row) for row in cur.fetchall()]
 
 
-def update_container(id_: Any, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    conn = get_db()
+def update_container(
+    conn: Connection, id_: Any, data: Dict[str, Any]
+) -> Optional[Dict[str, Any]]:
     fields = []
     values = []
     if "product" in data:
@@ -80,15 +78,14 @@ def update_container(id_: Any, data: Dict[str, Any]) -> Optional[Dict[str, Any]]
         fields.append("uuid = ?")
         values.append(data["uuid"])
     if not fields:
-        return get_container_by_id(id_)
+        return get_container_by_id(conn, id_)
     values.append(int(id_))
     conn.execute(f"UPDATE containers SET {', '.join(fields)} WHERE id = ?", values)
     conn.commit()
-    return get_container_by_id(id_)
+    return get_container_by_id(conn, id_)
 
 
-def delete_container(id_: Any) -> bool:
-    conn = get_db()
+def delete_container(conn: Connection, id_: Any) -> bool:
     cur = conn.execute("DELETE FROM containers WHERE id = ?", (int(id_),))
     conn.commit()
     return cur.rowcount == 1

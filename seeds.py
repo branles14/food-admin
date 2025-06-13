@@ -1,8 +1,11 @@
-from services import product_service, container_service
+from db import get_db
+from services import container_service, product_service
 
 
-def run():
+def run() -> None:
+    conn = get_db()
     product = product_service.create_product(
+        conn,
         {
             "name": "Tomato Sauce",
             "upc": "012345678905",
@@ -13,16 +16,17 @@ def run():
                 "protein": 2,
                 "carbs": 15,
             },
-        }
+        },
     )
 
     container_service.create_container(
+        conn,
         {
             "product": product["id"],
             "quantity": 2,
             "opened": False,
             "remaining": 2,
-        }
+        },
     )
     print("Seed data inserted")
 

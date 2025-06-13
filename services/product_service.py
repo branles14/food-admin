@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional
 
-from db import get_db
+from sqlite3 import Connection
 
 
 def _normalize(row: Optional[Any]) -> Optional[Dict[str, Any]]:
@@ -15,8 +15,7 @@ def _normalize(row: Optional[Any]) -> Optional[Dict[str, Any]]:
     return data
 
 
-def create_product(data: Dict[str, Any]) -> Dict[str, Any]:
-    conn = get_db()
+def create_product(conn: Connection, data: Dict[str, Any]) -> Dict[str, Any]:
     nutrition = json.dumps(data.get("nutrition")) if data.get("nutrition") else None
     cur = conn.execute(
         "INSERT INTO products (name, upc, uuid, nutrition) VALUES (?, ?, ?, ?)",
@@ -28,24 +27,23 @@ def create_product(data: Dict[str, Any]) -> Dict[str, Any]:
         ),
     )
     conn.commit()
-    return get_product_by_id(cur.lastrowid)
+    return get_product_by_id(conn, cur.lastrowid)
 
 
-def get_product_by_id(id_: Any) -> Optional[Dict[str, Any]]:
-    conn = get_db()
+def get_product_by_id(conn: Connection, id_: Any) -> Optional[Dict[str, Any]]:
     cur = conn.execute("SELECT * FROM products WHERE id = ?", (int(id_),))
     row = cur.fetchone()
     return _normalize(row)
 
 
-def list_products() -> List[Dict[str, Any]]:
-    conn = get_db()
+def list_products(conn: Connection) -> List[Dict[str, Any]]:
     cur = conn.execute("SELECT * FROM products")
     return [_normalize(row) for row in cur.fetchall()]
 
 
-def update_product(id_: Any, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    conn = get_db()
+def update_product(
+    conn: Connection, id_: Any, data: Dict[str, Any]
+) -> Optional[Dict[str, Any]]:
     fields = []
     values = []
     if "name" in data:
@@ -61,15 +59,14 @@ def update_product(id_: Any, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         fields.append("nutrition = ?")
         values.append(json.dumps(data["nutrition"]) if data["nutrition"] else None)
     if not fields:
-        return get_product_by_id(id_)
+        return get_product_by_id(conn, id_)
     values.append(int(id_))
     conn.execute(f"UPDATE products SET {', '.join(fields)} WHERE id = ?", values)
     conn.commit()
-    return get_product_by_id(id_)
+    return get_product_by_id(conn, id_)
 
 
-def delete_product(id_: Any) -> bool:
-    conn = get_db()
+def delete_product(conn: Connection, id_: Any) -> bool:
     cur = conn.execute("DELETE FROM products WHERE id = ?", (int(id_),))
     conn.commit()
     return cur.rowcount == 1

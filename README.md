@@ -27,10 +27,10 @@ The project uses MongoDB to store product and container information.
 ## Setup
 
 1. Clone this repository.
-2. Run `python3 scripts/setup.py` to install dependencies, start MongoDB in a
-   Docker container, and create the service.
-3. Start the service with `python3 scripts/startup.py`. This command prints
-   the systemd service status so you can confirm it started correctly.
+2. Run `python3 scripts/setup.py` to install dependencies and create the
+   systemd service.
+3. Start the service with `python3 scripts/startup.py`. This launches the
+   FastAPI app via `uvicorn` and prints the service status.
 4. If needed, inspect the service with `sudo systemctl status foodadmin`.
 5. Visit `http://localhost:3000/health` to verify the database connection.
 6. (Optional) Seed example data with `python3 seeds.py`.
@@ -39,7 +39,8 @@ The project uses MongoDB to store product and container information.
 ### Startup script
 
 Use `python3 scripts/setup.py` once to configure the environment and service.
-Afterwards `python3 scripts/startup.py` simply starts the systemd service.
+Afterwards `python3 scripts/startup.py` simply starts the systemd service
+which runs `uvicorn` in the background.
 
 
 ## Disclaimer
