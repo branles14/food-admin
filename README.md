@@ -18,6 +18,10 @@ The project uses SQLite to store product and container information.
 - `quantity` - how many units you own
 - `opened` - whether the container has been opened
 - `remaining` - amount left in the container
+- `expiration_date` - when the item expires
+- `location` - where the container is stored
+- `tags` - labels for categorization
+- `container_weight` - weight of the empty container
 
 ## Prerequisites
 

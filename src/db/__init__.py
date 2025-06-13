@@ -34,7 +34,11 @@ def _init_db(conn: Connection) -> None:
             quantity INTEGER,
             opened BOOLEAN,
             remaining REAL,
-            uuid TEXT
+            uuid TEXT,
+            expiration_date TEXT,
+            location TEXT,
+            tags TEXT,
+            container_weight INTEGER
         )
     """
     )

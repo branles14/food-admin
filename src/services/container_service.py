@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 from sqlite3 import Connection
@@ -14,6 +15,8 @@ def _normalize(conn: Connection, row: Optional[Any]) -> Optional[Dict[str, Any]]
     product_id = data.pop("product_id", None)
     if product_id is not None:
         data["product"] = product_service.get_product_by_id(conn, product_id)
+    if "tags" in data and data["tags"] is not None:
+        data["tags"] = json.loads(data["tags"])
     if "uuid" in data:
         data["uuid"] = data["uuid"]
     return data
@@ -29,14 +32,20 @@ def create_container(conn: Connection, data: Dict[str, Any]) -> Dict[str, Any]:
     else:
         product_id = None
     data.setdefault("uuid", str(uuid4()))
+    tags = json.dumps(data.get("tags")) if data.get("tags") is not None else None
     cur = conn.execute(
-        "INSERT INTO containers (product_id, quantity, opened, remaining, uuid) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO containers (product_id, quantity, opened, remaining, uuid, expiration_date, location, tags, container_weight)"
+        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
             product_id,
             data.get("quantity"),
             data.get("opened"),
             data.get("remaining"),
             data.get("uuid"),
+            data.get("expiration_date"),
+            data.get("location"),
+            tags,
+            data.get("container_weight"),
         ),
     )
     conn.commit()
@@ -77,6 +86,18 @@ def update_container(
     if "uuid" in data:
         fields.append("uuid = ?")
         values.append(data["uuid"])
+    if "expiration_date" in data:
+        fields.append("expiration_date = ?")
+        values.append(data["expiration_date"])
+    if "location" in data:
+        fields.append("location = ?")
+        values.append(data["location"])
+    if "tags" in data:
+        fields.append("tags = ?")
+        values.append(json.dumps(data["tags"]) if data["tags"] is not None else None)
+    if "container_weight" in data:
+        fields.append("container_weight = ?")
+        values.append(data["container_weight"])
     if not fields:
         return get_container_by_id(conn, id_)
     values.append(int(id_))
