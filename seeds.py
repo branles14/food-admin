@@ -1,5 +1,5 @@
-from db import get_db
-from services import container_service, product_service
+from src.db import get_db
+from src.services import container_service, product_service
 
 
 def run() -> None:

@@ -7,8 +7,8 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from sqlite3 import Connection
 
-from db import get_db
-from services import container_service
+from src.db import get_db
+from src.services import container_service
 
 app = FastAPI()
 

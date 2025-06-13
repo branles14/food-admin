@@ -32,7 +32,7 @@ The project uses SQLite to store product and container information.
 3. Run `python3 scripts/setup.py` to install dependencies and create the
    systemd service. The script creates the SQLite database if it does not exist.
 4. Start the service with `python3 scripts/startup.py` to launch the FastAPI
-   app.
+   app using `python -m src.cli.main`.
 5. Visit `http://localhost:3000/health` to verify the service is running.
 6. (Optional) Seed example data with `python3 seeds.py`.
 7. Retrieve the current inventory with `curl http://localhost:3000/containers`.
@@ -51,7 +51,7 @@ The `.env` file controls where data is stored and which port the service uses:
 
 Use `python3 scripts/setup.py` once to configure the environment and service.
 Afterwards `python3 scripts/startup.py` simply starts the systemd service
-which runs `uvicorn` in the background.
+which executes `python -m src.cli.main` in the background.
 
 
 ## Disclaimer
