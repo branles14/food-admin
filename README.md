@@ -26,7 +26,7 @@ The project uses SQLite to store product and container information.
 
 ## Prerequisites
 
-- Python 3
+- Python 3.10 or newer
 
 ## Setup
 
