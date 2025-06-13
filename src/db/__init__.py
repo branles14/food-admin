@@ -54,7 +54,7 @@ def get_db() -> Connection:
 
     url = config.get_database_url()
     if url.startswith("sqlite:///"):
-        path = url[len("sqlite:///") :]
+        path = url[len("sqlite:///"):]
     else:
         path = url
 

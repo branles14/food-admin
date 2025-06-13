@@ -10,7 +10,6 @@ import uvicorn
 
 from src.db import get_db
 from src.services import container_service
-from src.api.app import app
 
 
 def serve(_: argparse.Namespace) -> None:

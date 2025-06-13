@@ -7,7 +7,6 @@ from datetime import datetime
 from pathlib import Path
 
 from src import config
-from src.db import get_db
 
 
 def main() -> None:
@@ -15,7 +14,7 @@ def main() -> None:
     if not db_url.startswith("sqlite:///"):
         raise SystemExit("Only SQLite backups are supported")
 
-    db_path = Path(db_url[len("sqlite:///") :])
+    db_path = Path(db_url[len("sqlite:///"):])
     if not db_path.exists():
         raise SystemExit(f"Database file {db_path} does not exist")
 
