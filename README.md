@@ -37,6 +37,15 @@ The project uses SQLite to store product and container information.
 6. (Optional) Seed example data with `python3 seeds.py`.
 7. Retrieve the current inventory with `curl http://localhost:3000/containers`.
 
+## Running Tests
+
+Unit tests are located under the `tests/` directory and use `pytest`. Install
+pytest with `pip install pytest` if it is not already available and run:
+
+```bash
+pytest
+```
+
 ### Environment variables
 
 The `.env` file controls where data is stored and which port the service uses:
