@@ -8,11 +8,11 @@ import importlib
 from pathlib import Path
 import sys
 
-from src import config
-from src.db import get_db
-
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_DIR))
+
+from src import config
+from src.db import get_db
 
 SERVICE_FILE = "/etc/systemd/system/foodadmin.service"
 
