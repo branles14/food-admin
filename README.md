@@ -42,7 +42,8 @@ The project uses SQLite to store product and container information.
 6. (Optional) Seed example data with `python3 scripts/seeds.py`.
 7. Retrieve the current inventory with `curl http://localhost:3000/containers`.
 8. Run `python3 scripts/backup.py` to create a timestamped backup in the
-   directory specified by `BACKUP_DIR`.
+   directory specified by `BACKUP_DIR`. See the [Backups section](docs/usage.md#backups)
+   in the usage guide for more details.
 
 ## CLI Usage
 
