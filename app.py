@@ -12,7 +12,7 @@ db = get_db()
 @app.get("/health")
 def health():
     try:
-        db.command("ping")
+        db.execute("SELECT 1")
         return jsonify({"status": "ok"})
     except Exception as exc:
         return jsonify({"status": "error", "message": str(exc)}), 500
@@ -42,8 +42,6 @@ def delete_container(id):
     if container_service.delete_container(id):
         return jsonify({"message": "Container deleted"})
     return jsonify({"error": "Container not found"}), 404
-
-
 
 
 if __name__ == "__main__":

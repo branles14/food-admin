@@ -18,7 +18,7 @@ def run():
 
     container_service.create_container(
         {
-            "product": product["_id"],
+            "product": product["id"],
             "quantity": 2,
             "opened": False,
             "remaining": 2,
