@@ -26,14 +26,26 @@ The project uses SQLite to store product and container information.
 ## Setup
 
 1. Clone this repository.
-2. Run `python3 scripts/setup.py` to install dependencies and create the
-   systemd service.
-3. Start the service with `python3 scripts/startup.py`. This launches the
-   FastAPI app via `uvicorn` and prints the service status.
-4. If needed, inspect the service with `sudo systemctl status foodadmin`.
-5. Visit `http://localhost:3000/health` to verify the database connection.
+2. Copy `.env.example` to `.env` and adjust the paths if desired. The default
+   configuration stores data locally under the `data/` directory using a SQLite
+   database at `data/inventory.db`.
+3. Run `python3 scripts/setup.py` to install dependencies and create the
+   systemd service. The script creates the SQLite database if it does not exist.
+4. Start the service with `python3 scripts/startup.py` to launch the FastAPI
+   app.
+5. Visit `http://localhost:3000/health` to verify the service is running.
 6. (Optional) Seed example data with `python3 seeds.py`.
 7. Retrieve the current inventory with `curl http://localhost:3000/containers`.
+
+### Environment variables
+
+The `.env` file controls where data is stored and which port the service uses:
+
+- `DATA_DIR` &mdash; directory for persistent data (defaults to `./data`)
+- `DATABASE_URL` &mdash; SQLite connection string, e.g.
+  `sqlite:///data/inventory.db`
+- `BACKUP_DIR` &mdash; location for database backups (defaults to `./backups`)
+- `PORT` &mdash; port number for the FastAPI application
 
 ### Startup script
 
