@@ -5,7 +5,7 @@ It helps you manage which products you own and where they are stored.
 
 ## Features
 
-The project uses MongoDB to store product and container information.
+The project uses SQLite to store product and container information.
 
 ### Product
 - `name` - product name
@@ -22,7 +22,6 @@ The project uses MongoDB to store product and container information.
 ## Prerequisites
 
 - Python 3
- - Docker (used to run MongoDB)
 
 ## Setup
 
