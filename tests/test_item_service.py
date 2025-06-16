@@ -1,9 +1,9 @@
 from src.services import item_service, product_info_service
 
 
-def setup_product(conn):
+def setup_product(db):
     return product_info_service.create_product_info(
-        conn,
+        db,
         {
             "name": "Milk",
             "upc": "456",
@@ -13,12 +13,12 @@ def setup_product(conn):
     )
 
 
-def test_create_list_update_delete_item(db_conn):
-    prod_info = setup_product(db_conn)
+def test_create_list_update_delete_item(inventory_db, product_db):
+    prod_info = setup_product(product_db)
 
     item = item_service.create_item(
-        db_conn,
-        db_conn,
+        inventory_db,
+        product_db,
         {
             "product": prod_info["id"],
             "quantity": 1,
@@ -35,12 +35,12 @@ def test_create_list_update_delete_item(db_conn):
     assert item["tags"] == ["dairy"]
     assert item["container_weight"] == 200
 
-    products = item_service.list_items(db_conn, db_conn)
+    products = item_service.list_items(inventory_db, product_db)
     assert len(products) == 1
 
     updated = item_service.update_item(
-        db_conn,
-        db_conn,
+        inventory_db,
+        product_db,
         item["id"],
         {"remaining": 0.5, "tags": ["dairy", "open"], "container_weight": 250},
     )
@@ -48,22 +48,22 @@ def test_create_list_update_delete_item(db_conn):
     assert updated["tags"] == ["dairy", "open"]
     assert updated["container_weight"] == 250
 
-    result = item_service.delete_item(db_conn, item["id"])
+    result = item_service.delete_item(inventory_db, item["id"])
     assert result is True
-    assert item_service.list_items(db_conn, db_conn) == []
+    assert item_service.list_items(inventory_db, product_db) == []
 
 
-def test_update_item_all_fields(db_conn):
-    prod1 = setup_product(db_conn)
+def test_update_item_all_fields(inventory_db, product_db):
+    prod1 = setup_product(product_db)
     prod2 = item_service.create_item(
-        db_conn,
-        db_conn,
+        product_db,
+        product_db,
         {"name": "Yogurt", "upc": "789", "uuid": "uuid3", "nutrition": None},
     )
 
     item = item_service.create_item(
-        db_conn,
-        db_conn,
+        inventory_db,
+        product_db,
         {
             "product": prod1["id"],
             "quantity": 1,
@@ -77,8 +77,8 @@ def test_update_item_all_fields(db_conn):
     )
 
     updated = item_service.update_item(
-        db_conn,
-        db_conn,
+        inventory_db,
+        product_db,
         item["id"],
         {
             "product": prod2["id"],

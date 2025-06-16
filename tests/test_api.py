@@ -8,18 +8,18 @@ from src.api.app import (
 from src.services import item_service, product_info_service
 
 
-# reuse db_conn fixture from conftest
+# reuse JSONL fixtures from conftest
 
 
-def test_product_api_crud(db_conn):
+def test_product_api_crud(inventory_db, product_db):
     # Override dependencies to use in-memory db
-    app.dependency_overrides[app_inventory_conn] = lambda: db_conn
-    app.dependency_overrides[app_product_conn] = lambda: db_conn
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
     client = TestClient(app)
 
     # create product info for reference
     prod_info = product_info_service.create_product_info(
-        db_conn,
+        product_db,
         {
             "name": "Bread",
             "upc": "111",

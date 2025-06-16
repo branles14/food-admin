@@ -7,9 +7,7 @@ from pydantic import BaseModel
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.concurrency import run_in_threadpool
-from sqlite3 import Connection
-
-from src.db import get_inventory_db, get_product_db
+from src.db import JsonlDB, get_inventory_db, get_product_db
 from src.services import item_service, product_info_service
 
 
@@ -31,16 +29,16 @@ class ItemUpdate(ItemCreate):
 app = FastAPI()
 
 
-async def inventory_conn() -> Connection:
+async def inventory_conn() -> JsonlDB:
     return get_inventory_db()
 
 
-async def product_conn() -> Connection:
+async def product_conn() -> JsonlDB:
     return get_product_db()
 
 
 @app.get("/health")
-async def health(db: Connection = Depends(inventory_conn)) -> JSONResponse:
+async def health(db: JsonlDB = Depends(inventory_conn)) -> JSONResponse:
     try:
         await run_in_threadpool(db.execute, "SELECT 1")
         return JSONResponse({"status": "ok"})
@@ -50,8 +48,8 @@ async def health(db: Connection = Depends(inventory_conn)) -> JSONResponse:
 
 @app.get("/inventory")
 async def list_items(
-    inv_db: Connection = Depends(inventory_conn),
-    prod_db: Connection = Depends(product_conn),
+    inv_db: JsonlDB = Depends(inventory_conn),
+    prod_db: JsonlDB = Depends(product_conn),
 ) -> Any:
     return await run_in_threadpool(
         item_service.list_items,
@@ -63,8 +61,8 @@ async def list_items(
 @app.post("/inventory", status_code=201)
 async def create_item(
     data: ItemCreate,
-    inv_db: Connection = Depends(inventory_conn),
-    prod_db: Connection = Depends(product_conn),
+    inv_db: JsonlDB = Depends(inventory_conn),
+    prod_db: JsonlDB = Depends(product_conn),
 ) -> Any:
     return await run_in_threadpool(
         item_service.create_item,
@@ -78,8 +76,8 @@ async def create_item(
 async def update_item(
     id: Any,
     data: ItemUpdate,
-    inv_db: Connection = Depends(inventory_conn),
-    prod_db: Connection = Depends(product_conn),
+    inv_db: JsonlDB = Depends(inventory_conn),
+    prod_db: JsonlDB = Depends(product_conn),
 ) -> Any:
     product = await run_in_threadpool(
         item_service.update_item,
@@ -94,7 +92,7 @@ async def update_item(
 
 
 @app.delete("/inventory/{id}")
-async def delete_item(id: Any, inv_db: Connection = Depends(inventory_conn)) -> Any:
+async def delete_item(id: Any, inv_db: JsonlDB = Depends(inventory_conn)) -> Any:
     deleted = await run_in_threadpool(
         item_service.delete_item,
         inv_db,

@@ -21,18 +21,18 @@ def get_backup_dir() -> Path:
 
 
 def get_inventory_database_url() -> str:
-    """Return the configured inventory database URL."""
-    default_path = get_data_dir() / "inventory.db"
+    """Return the configured inventory data file."""
+    default_path = get_data_dir() / "inventory.jsonl"
     return os.environ.get(
         "INVENTORY_DATABASE_URL",
-        os.environ.get("DATABASE_URL", f"sqlite:///{default_path}"),
+        os.environ.get("DATABASE_URL", str(default_path)),
     )
 
 
 def get_product_database_url() -> str:
-    """Return the configured products database URL."""
-    default_path = get_data_dir() / "products.db"
-    return os.environ.get("PRODUCT_DATABASE_URL", f"sqlite:///{default_path}")
+    """Return the configured products data file."""
+    default_path = get_data_dir() / "products.jsonl"
+    return os.environ.get("PRODUCT_DATABASE_URL", str(default_path))
 
 
 def get_database_url() -> str:

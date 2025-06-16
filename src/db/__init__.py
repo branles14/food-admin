@@ -1,103 +1,57 @@
-"""Database access helpers."""
+"""JSONL database access helpers."""
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
-import sqlite3
-from sqlite3 import Connection
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 from src import config
 
-_inventory_conn: Optional[Connection] = None
-_product_conn: Optional[Connection] = None
-_inventory_url: Optional[str] = None
-_product_url: Optional[str] = None
+
+class JsonlDB:
+    """Lightweight JSON Lines storage."""
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        if not self.path.exists():
+            self.path.touch()
+
+    def read_all(self) -> List[Dict[str, Any]]:
+        with self.path.open("r", encoding="utf-8") as f:
+            return [json.loads(line) for line in f if line.strip()]
+
+    def write_all(self, rows: List[Dict[str, Any]]) -> None:
+        with self.path.open("w", encoding="utf-8") as f:
+            for row in rows:
+                f.write(json.dumps(row) + "\n")
 
 
-def _init_product_db(conn: Connection) -> None:
-    """Create product_info table if it does not already exist."""
-
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS product_info (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            upc TEXT,
-            uuid TEXT,
-            nutrition TEXT
-        )
-    """
-    )
-    conn.commit()
+_inventory_db: Optional[JsonlDB] = None
+_product_db: Optional[JsonlDB] = None
 
 
-def _init_inventory_db(conn: Connection) -> None:
-    """Create inventory table if it does not already exist."""
+def get_inventory_db() -> JsonlDB:
+    """Return the inventory JSONL database."""
 
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS inventory (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            product_id INTEGER,
-            quantity INTEGER,
-            opened BOOLEAN,
-            remaining REAL,
-            uuid TEXT,
-            expiration_date TEXT,
-            location TEXT,
-            tags TEXT,
-            container_weight INTEGER
-        )
-    """
-    )
-    conn.commit()
+    global _inventory_db
+    url = Path(config.get_inventory_database_url())
+    if _inventory_db is None or _inventory_db.path != url:
+        _inventory_db = JsonlDB(url)
+    return _inventory_db
 
 
-def _connect(url: str) -> Connection:
-    if url.startswith("sqlite:///"):
-        start = len("sqlite:///")
-        path = url[start:]
-    else:
-        path = url
+def get_product_db() -> JsonlDB:
+    """Return the products JSONL database."""
 
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(path, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    return conn
+    global _product_db
+    url = Path(config.get_product_database_url())
+    if _product_db is None or _product_db.path != url:
+        _product_db = JsonlDB(url)
+    return _product_db
 
 
-def get_inventory_db() -> Connection:
-    """Return the inventory database connection."""
-
-    global _inventory_conn, _inventory_url
-    url = config.get_inventory_database_url()
-    if _inventory_conn is None or _inventory_url != url:
-        _inventory_conn = _connect(url)
-        _init_inventory_db(_inventory_conn)
-        _inventory_url = url
-    return _inventory_conn
-
-
-def get_product_db() -> Connection:
-    """Return the products database connection."""
-
-    global _product_conn, _product_url
-    url = config.get_product_database_url()
-    if _product_conn is None or _product_url != url:
-        _product_conn = _connect(url)
-        _init_product_db(_product_conn)
-        _product_url = url
-    return _product_conn
-
-
-def _init_db(conn: Connection) -> None:
-    """Initialize both tables on a single connection."""
-
-    _init_product_db(conn)
-    _init_inventory_db(conn)
-
-
-def get_db() -> Connection:
+def get_db() -> JsonlDB:
     """Backward compatibility shim for inventory DB."""
     return get_inventory_db()
