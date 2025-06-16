@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from typing import Any, Dict, List, Optional
-from uuid import uuid4
+import shortuuid
 
 from src.db import JsonlDB
 from . import product_info_service
@@ -72,12 +72,12 @@ def create_item(
                 prod_db, {"name": name, "upc": upc}
             )
             product_id = new_prod["id"]
-    data.setdefault("uuid", str(uuid4()))
+    data.setdefault("uuid", shortuuid.uuid())
     item = {
         "id": _next_id(items),
         "product_id": product_id,
-        "quantity": data.get("quantity"),
-        "opened": data.get("opened"),
+        "quantity": data.get("quantity", 1),
+        "opened": data.get("opened", False),
         "remaining": data.get("remaining"),
         "uuid": data.get("uuid"),
         "expiration_date": data.get("expiration_date"),
