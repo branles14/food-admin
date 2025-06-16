@@ -156,3 +156,37 @@ def test_create_item_defaults_via_api(inventory_db, product_db):
     assert len(data["uuid"]) <= 22
 
     app.dependency_overrides.clear()
+
+
+def test_uuid_routes(inventory_db, product_db):
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
+    client = TestClient(app)
+
+    prod = product_info_service.create_product_info(
+        product_db,
+        {"name": "Juice", "upc": "555"},
+    )
+
+    item = item_service.create_item(
+        inventory_db,
+        product_db,
+        {"product": prod["id"], "uuid": "abc"},
+    )
+
+    resp = client.get(f"/inventory/uuid/{item['uuid']}")
+    assert resp.status_code == 200
+    assert resp.json()["id"] == item["id"]
+
+    resp = client.patch(
+        f"/inventory/uuid/{item['uuid']}",
+        json={"quantity": 7},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["quantity"] == 7
+
+    resp = client.delete(f"/inventory/uuid/{item['uuid']}")
+    assert resp.status_code == 200
+    assert resp.json()["message"] == "Item deleted"
+
+    app.dependency_overrides.clear()

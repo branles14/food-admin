@@ -11,13 +11,21 @@ With the server running, you can interact with the REST endpoints. Examples:
     -H 'Content-Type: application/json' \
     -d '{"product": 1, "quantity": 1}'
   ```
- - Update item:
+- Update item:
   ```bash
   curl -X PATCH http://localhost:3000/inventory/<id> \
     -H 'Content-Type: application/json' \
     -d '{"quantity": 3}'
   ```
 - Delete item: `DELETE /inventory/<id>`
+- Get item by UUID: `GET /inventory/uuid/<uuid>`
+- Update item by UUID:
+  ```bash
+  curl -X PATCH http://localhost:3000/inventory/uuid/<uuid> \
+    -H 'Content-Type: application/json' \
+    -d '{"quantity": 3}'
+  ```
+- Delete item by UUID: `DELETE /inventory/uuid/<uuid>`
 
 The API also exposes a `/health` endpoint for a simple status check.
 
