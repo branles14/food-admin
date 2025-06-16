@@ -19,8 +19,21 @@ class JsonlDB:
             self.path.touch()
 
     def read_all(self) -> List[Dict[str, Any]]:
+        if not self.path.exists():
+            return []
+        rows: List[Dict[str, Any]] = []
         with self.path.open("r", encoding="utf-8") as f:
-            return [json.loads(line) for line in f if line.strip()]
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(obj, dict):
+                    rows.append(obj)
+        return rows
 
     def write_all(self, rows: List[Dict[str, Any]]) -> None:
         with self.path.open("w", encoding="utf-8") as f:
