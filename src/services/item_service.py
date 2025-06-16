@@ -149,3 +149,61 @@ def delete_item(inv_db: JsonlDB, id_: Any) -> bool:
         return False
     inv_db.write_all(new_items)
     return True
+
+
+def get_item_by_uuid(
+    inv_db: JsonlDB, prod_db: JsonlDB, uuid: Any
+) -> Optional[Dict[str, Any]]:
+    """Return a normalized item by its UUID."""
+    items = inv_db.read_all()
+    for row in items:
+        if str(row.get("uuid")) == str(uuid):
+            return _normalize(prod_db, row)
+    return None
+
+
+def update_item_by_uuid(
+    inv_db: JsonlDB, prod_db: JsonlDB, uuid: Any, data: Dict[str, Any]
+) -> Optional[Dict[str, Any]]:
+    """Update an item located by its UUID."""
+    items = inv_db.read_all()
+    updated = None
+    for row in items:
+        if str(row.get("uuid")) == str(uuid):
+            if "product" in data:
+                prod = data["product"]
+                if isinstance(prod, dict):
+                    prod = prod.get("id")
+                row["product_id"] = str(prod) if prod is not None else None
+            if "quantity" in data:
+                row["quantity"] = data["quantity"]
+            if "opened" in data:
+                row["opened"] = data["opened"]
+            if "remaining" in data:
+                row["remaining"] = data["remaining"]
+            if "uuid" in data:
+                row["uuid"] = data["uuid"]
+            if "expiration_date" in data:
+                row["expiration_date"] = data["expiration_date"]
+            if "location" in data:
+                row["location"] = data["location"]
+            if "tags" in data:
+                row["tags"] = data["tags"]
+            if "container_weight" in data:
+                row["container_weight"] = data["container_weight"]
+            updated = row
+            break
+    if updated is None:
+        return None
+    inv_db.write_all(items)
+    return _normalize(prod_db, updated)
+
+
+def delete_item_by_uuid(inv_db: JsonlDB, uuid: Any) -> bool:
+    """Delete an item by its UUID."""
+    items = inv_db.read_all()
+    new_items = [row for row in items if str(row.get("uuid")) != str(uuid)]
+    if len(new_items) == len(items):
+        return False
+    inv_db.write_all(new_items)
+    return True

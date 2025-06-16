@@ -112,6 +112,56 @@ async def delete_item(id: Any, inv_db: JsonlDB = Depends(inventory_conn)) -> Any
     raise HTTPException(status_code=404, detail="Item not found")
 
 
+@app.get("/inventory/uuid/{uuid}")
+async def get_item_by_uuid(
+    uuid: Any,
+    inv_db: JsonlDB = Depends(inventory_conn),
+    prod_db: JsonlDB = Depends(product_conn),
+) -> Any:
+    item = await run_in_threadpool(
+        item_service.get_item_by_uuid,
+        inv_db,
+        prod_db,
+        uuid,
+    )
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
+
+@app.patch("/inventory/uuid/{uuid}")
+async def update_item_by_uuid(
+    uuid: Any,
+    data: ItemUpdate,
+    inv_db: JsonlDB = Depends(inventory_conn),
+    prod_db: JsonlDB = Depends(product_conn),
+) -> Any:
+    item = await run_in_threadpool(
+        item_service.update_item_by_uuid,
+        inv_db,
+        prod_db,
+        uuid,
+        data.dict(exclude_unset=True),
+    )
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
+
+@app.delete("/inventory/uuid/{uuid}")
+async def delete_item_by_uuid(
+    uuid: Any, inv_db: JsonlDB = Depends(inventory_conn)
+) -> Any:
+    deleted = await run_in_threadpool(
+        item_service.delete_item_by_uuid,
+        inv_db,
+        uuid,
+    )
+    if deleted:
+        return {"message": "Item deleted"}
+    raise HTTPException(status_code=404, detail="Item not found")
+
+
 if __name__ == "__main__":  # pragma: no cover
     port = int(os.environ.get("PORT", 3000))
     import uvicorn

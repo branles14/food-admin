@@ -142,3 +142,28 @@ def test_create_item_defaults(inventory_db, product_db):
     assert item["quantity"] == 1
     assert bool(item["opened"]) is False
     assert len(item["uuid"]) <= 22
+
+
+def test_uuid_helpers(inventory_db, product_db):
+    prod_info = setup_product(product_db)
+    uuid = "item-uuid"
+    item = item_service.create_item(
+        inventory_db,
+        product_db,
+        {"product": prod_info["id"], "uuid": uuid, "quantity": 1},
+    )
+
+    fetched = item_service.get_item_by_uuid(inventory_db, product_db, uuid)
+    assert fetched["id"] == item["id"]
+
+    updated = item_service.update_item_by_uuid(
+        inventory_db,
+        product_db,
+        uuid,
+        {"quantity": 3},
+    )
+    assert updated["quantity"] == 3
+
+    deleted = item_service.delete_item_by_uuid(inventory_db, uuid)
+    assert deleted is True
+    assert item_service.get_item_by_uuid(inventory_db, product_db, uuid) is None
