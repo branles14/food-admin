@@ -5,12 +5,12 @@ PROJECT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_DIR))
 
 from src.db import get_db
-from src.services import container_service, product_service
+from src.services import item_service, product_info_service
 
 
 def run() -> None:
     conn = get_db()
-    product = product_service.create_product(
+    product = product_info_service.create_item_info(
         conn,
         {
             "name": "Tomato Sauce",
@@ -25,7 +25,7 @@ def run() -> None:
         },
     )
 
-    container_service.create_container(
+    item_service.create_item(
         conn,
         {
             "product": product["id"],

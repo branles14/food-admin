@@ -1,26 +1,26 @@
 # Food Admin
 
-Food Admin is a simple project for tracking food inventory and containers.
-It helps you manage which products you own and where they are stored.
+Food Admin is a simple project for tracking food inventory items.
+It helps you manage which items you own and where they are stored.
 See the [docs](docs/) directory for an overview of the architecture, setup instructions and usage examples.
 
 ## Features
 
-The project uses SQLite to store product and container information.
+The project uses SQLite to store product and inventory information.
 
-### Product
+### Product Info
 - `name` - product name
 - `nutrition` - nutritional details
 - `upc` - UPC identifier
 - `uuid` - unique identifier
 
-### Container
-- `product` - reference to a product
+### Inventory Item
+- `product_info` - reference to catalog data
 - `quantity` - how many units you own
-- `opened` - whether the container has been opened
-- `remaining` - amount left in the container
+- `opened` - whether the item has been opened
+- `remaining` - amount left in the item
 - `expiration_date` - when the item expires
-- `location` - where the container is stored
+- `location` - where the item is stored
 - `tags` - labels for categorization
 - `container_weight` - weight of the empty container
 
@@ -42,7 +42,7 @@ The project uses SQLite to store product and container information.
    app using `python -m src.cli.main`.
 5. Visit `http://localhost:3000/health` to verify the service is running.
 6. (Optional) Seed example data with `python3 scripts/seeds.py`.
-7. Retrieve the current inventory with `curl http://localhost:3000/containers`.
+7. Retrieve the current inventory with `curl http://localhost:3000/items`.
 8. Run `python3 scripts/backup.py` to create a timestamped backup in the
    directory specified by `BACKUP_DIR`. See the [Backups section](docs/usage.md#backups)
    in the usage guide for more details. To automate backups with cron,
@@ -53,10 +53,10 @@ The project uses SQLite to store product and container information.
 
 The command `python -m src.cli.main` exposes subcommands like `add` and `update`.
 Both accept mutually exclusive `--opened` and `--no-opened` flags to set the
-container state.
+item state.
 
 ```bash
-python -m src.cli.main add --product 1 --quantity 2 --opened
+python -m src.cli.main add --product-info 1 --quantity 2 --opened
 python -m src.cli.main update 5 --no-opened
 ```
 
