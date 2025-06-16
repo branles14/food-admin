@@ -5,7 +5,7 @@
 Run commands through the module `src.cli.main`:
 
 ```bash
-python -m src.cli.main add --product 1 --quantity 2 --opened
+python -m src.cli.main add --product-info 1 --quantity 2 --opened
 python -m src.cli.main update 5 --no-opened
 python -m src.cli.main delete 5
 ```
@@ -20,20 +20,20 @@ python -m src.cli.main serve
 
 With the server running, you can interact with the REST endpoints. Examples:
 
-- List containers: `GET /containers`
-- Create container:
+- List items: `GET /items`
+- Create item:
   ```bash
-  curl -X POST http://localhost:3000/containers \
+  curl -X POST http://localhost:3000/items \
     -H 'Content-Type: application/json' \
     -d '{"product": 1, "quantity": 1}'
   ```
-- Update container:
+ - Update item:
   ```bash
-  curl -X PATCH http://localhost:3000/containers/<id> \
+  curl -X PATCH http://localhost:3000/items/<id> \
     -H 'Content-Type: application/json' \
     -d '{"quantity": 3}'
   ```
-- Delete container: `DELETE /containers/<id>`
+- Delete item: `DELETE /items/<id>`
 
 The API also exposes a `/health` endpoint for a simple status check.
 

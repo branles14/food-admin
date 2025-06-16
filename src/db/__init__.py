@@ -9,15 +9,16 @@ from typing import Optional
 
 from src import config
 
-_conn: Optional[Connection] = None
+_inventory_conn: Optional[Connection] = None
+_product_conn: Optional[Connection] = None
 
 
-def _init_db(conn: Connection) -> None:
-    """Create tables if they do not already exist."""
+def _init_product_db(conn: Connection) -> None:
+    """Create product_info table if it does not already exist."""
 
     conn.execute(
         """
-        CREATE TABLE IF NOT EXISTS products (
+        CREATE TABLE IF NOT EXISTS product_info (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             upc TEXT,
@@ -26,9 +27,15 @@ def _init_db(conn: Connection) -> None:
         )
     """
     )
+    conn.commit()
+
+
+def _init_inventory_db(conn: Connection) -> None:
+    """Create inventory table if it does not already exist."""
+
     conn.execute(
         """
-        CREATE TABLE IF NOT EXISTS containers (
+        CREATE TABLE IF NOT EXISTS inventory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             product_id INTEGER,
             quantity INTEGER,
@@ -45,14 +52,7 @@ def _init_db(conn: Connection) -> None:
     conn.commit()
 
 
-def get_db() -> Connection:
-    """Return an SQLite database connection."""
-
-    global _conn
-    if _conn is not None:
-        return _conn
-
-    url = config.get_database_url()
+def _connect(url: str) -> Connection:
     if url.startswith("sqlite:///"):
         start = len("sqlite:///")
         path = url[start:]
@@ -60,8 +60,40 @@ def get_db() -> Connection:
         path = url
 
     Path(path).parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(path, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-    _conn = sqlite3.connect(path, check_same_thread=False)
-    _conn.row_factory = sqlite3.Row
-    _init_db(_conn)
-    return _conn
+
+def get_inventory_db() -> Connection:
+    """Return the inventory database connection."""
+
+    global _inventory_conn
+    if _inventory_conn is None:
+        url = config.get_inventory_database_url()
+        _inventory_conn = _connect(url)
+        _init_inventory_db(_inventory_conn)
+    return _inventory_conn
+
+
+def get_product_db() -> Connection:
+    """Return the products database connection."""
+
+    global _product_conn
+    if _product_conn is None:
+        url = config.get_product_database_url()
+        _product_conn = _connect(url)
+        _init_product_db(_product_conn)
+    return _product_conn
+
+
+def _init_db(conn: Connection) -> None:
+    """Initialize both tables on a single connection."""
+
+    _init_product_db(conn)
+    _init_inventory_db(conn)
+
+
+def get_db() -> Connection:
+    """Backward compatibility shim for inventory DB."""
+    return get_inventory_db()
