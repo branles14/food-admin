@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional
 
+import shortuuid
+
 from src.db import JsonlDB
 
 
@@ -25,7 +27,7 @@ def create_product_info(db: JsonlDB, data: Dict[str, Any]) -> Dict[str, Any]:
         "id": _next_id(rows),
         "name": data.get("name"),
         "upc": data.get("upc"),
-        "uuid": data.get("uuid"),
+        "uuid": data.get("uuid", shortuuid.uuid()),
         "nutrition": data.get("nutrition"),
     }
     rows.append(item)

@@ -136,3 +136,23 @@ def test_inventory_empty_when_file_has_brackets(inventory_db, product_db):
     assert resp.status_code == 200
     assert resp.json() == {"message": "Inventory empty"}
     app.dependency_overrides.clear()
+
+
+def test_create_item_defaults_via_api(inventory_db, product_db):
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
+    client = TestClient(app)
+
+    prod = product_info_service.create_product_info(
+        product_db,
+        {"name": "Egg", "upc": "444"},
+    )
+
+    resp = client.post("/inventory", json={"product": prod["id"]})
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["quantity"] == 1
+    assert bool(data["opened"]) is False
+    assert len(data["uuid"]) <= 22
+
+    app.dependency_overrides.clear()

@@ -131,3 +131,15 @@ def test_create_item_unknown_upc_needs_name(inventory_db, product_db):
             product_db,
             {"upc": "999", "quantity": 1},
         )
+
+
+def test_create_item_defaults(inventory_db, product_db):
+    prod_info = setup_product(product_db)
+    item = item_service.create_item(
+        inventory_db,
+        product_db,
+        {"product": prod_info["id"]},
+    )
+    assert item["quantity"] == 1
+    assert bool(item["opened"]) is False
+    assert len(item["uuid"]) <= 22
