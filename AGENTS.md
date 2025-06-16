@@ -1,3 +1,4 @@
+
 ---
 name: "food-admin"
 description: "A Unix-style food inventory management service for Debian-based Linux systems, built in Python. Exposes a CLI utility and AI-compatible API for use in intelligent meal planning, grocery guidance, and macro tracking."
