@@ -41,9 +41,8 @@ The project stores product and inventory data in simple JSON Lines files.
 4. Start the service with `python3 scripts/startup.py` to launch the FastAPI
    application.
 5. Visit `http://localhost:3000/health` to verify the service is running.
-6. (Optional) Seed example data with `python3 scripts/seeds.py`.
-7. Retrieve the current inventory with `curl http://localhost:3000/inventory`.
-8. Run `python3 scripts/backup.py` to create a timestamped backup in the
+6. Retrieve the current inventory with `curl http://localhost:3000/inventory`.
+7. Run `python3 scripts/backup.py` to create a timestamped backup in the
    directory specified by `BACKUP_DIR`. See the [Backups section](docs/usage.md#backups)
    in the usage guide for more details. To automate backups with cron,
    follow the [scheduled backups instructions](docs/setup.md#scheduled-backups)
