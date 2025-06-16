@@ -71,7 +71,7 @@ def create_service() -> None:
     service_content = textwrap.dedent(
         f"""
     [Unit]
-    Description=Food Admin Service
+    Description=Food Admin Database Service
     After=network.target
 
     [Service]
