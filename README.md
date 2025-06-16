@@ -6,7 +6,7 @@ See the [docs](docs/) directory for an overview of the architecture, setup instr
 
 ## Features
 
-The project uses SQLite to store product and inventory information.
+The project stores product and inventory data in simple JSON Lines files.
 
 ### Product Info
 - `name` - product name
@@ -32,14 +32,14 @@ The project uses SQLite to store product and inventory information.
 
 1. Clone this repository.
 2. Copy `.env.example` to `.env` and adjust the paths if desired. The default
-   configuration stores data locally under the `data/` directory using a SQLite
-   database at `data/inventory.db`.
+   configuration stores data locally under the `data/` directory using JSONL
+   files at `data/inventory.jsonl` and `data/products.jsonl`.
 3. Run `python3 scripts/setup.py` to install dependencies and create or update
-   the systemd service. The script also creates the SQLite database if it does
+   the systemd service. The script also creates the data files if they do
    not exist. The `requirements.txt` file pins `httpx` to versions
    `>=0.27,<0.28` for compatibility.
 4. Start the service with `python3 scripts/startup.py` to launch the FastAPI
-   app using `python -m src.cli.main`.
+   application.
 5. Visit `http://localhost:3000/health` to verify the service is running.
 6. (Optional) Seed example data with `python3 scripts/seeds.py`.
 7. Retrieve the current inventory with `curl http://localhost:3000/inventory`.
@@ -49,16 +49,6 @@ The project uses SQLite to store product and inventory information.
    follow the [scheduled backups instructions](docs/setup.md#scheduled-backups)
    in the setup guide.
 
-## CLI Usage
-
-The command `python -m src.cli.main` exposes subcommands like `add` and `update`.
-Both accept mutually exclusive `--opened` and `--no-opened` flags to set the
-item state.
-
-```bash
-python -m src.cli.main add --product-info 1 --quantity 2 --opened
-python -m src.cli.main update 5 --no-opened
-```
 
 ## Running Tests
 
@@ -74,8 +64,8 @@ pytest
 The `.env` file controls where data is stored and which port the service uses:
 
 - `DATA_DIR` &mdash; directory for persistent data (defaults to `./data`)
-- `DATABASE_URL` &mdash; SQLite connection string, e.g.
-  `sqlite:///data/inventory.db`
+- `DATABASE_URL` &mdash; path to the inventory JSONL file, e.g.
+  `data/inventory.jsonl`
 - `BACKUP_DIR` &mdash; location for database backups (defaults to `./backups`)
 - `PORT` &mdash; port number for the FastAPI application
 
@@ -83,7 +73,7 @@ The `.env` file controls where data is stored and which port the service uses:
 
 Use `python3 scripts/setup.py` once to configure the environment and service.
 Afterwards `python3 scripts/startup.py` simply starts the systemd service
-which executes `python -m src.cli.main` in the background.
+which runs the API using uvicorn in the background.
 
 
 ## Disclaimer

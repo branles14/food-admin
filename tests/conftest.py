@@ -1,5 +1,4 @@
 import os
-import sqlite3
 import sys
 from typing import Generator
 
@@ -7,15 +6,16 @@ import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.db import _init_db
+from src.db import JsonlDB
 
 
 @pytest.fixture()
-def db_conn() -> Generator[sqlite3.Connection, None, None]:
-    conn = sqlite3.connect(":memory:", check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    _init_db(conn)
-    try:
-        yield conn
-    finally:
-        conn.close()
+def inventory_db(tmp_path) -> Generator[JsonlDB, None, None]:
+    db = JsonlDB(tmp_path / "inventory.jsonl")
+    yield db
+
+
+@pytest.fixture()
+def product_db(tmp_path) -> Generator[JsonlDB, None, None]:
+    db = JsonlDB(tmp_path / "products.jsonl")
+    yield db

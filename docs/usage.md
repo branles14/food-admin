@@ -1,20 +1,4 @@
-# Using the API and CLI
-
-## CLI
-
-Run commands through the module `src.cli.main`:
-
-```bash
-python -m src.cli.main add --product-info 1 --quantity 2 --opened
-python -m src.cli.main update 5 --no-opened
-python -m src.cli.main delete 5
-```
-
-The `serve` subcommand starts the API server locally:
-
-```bash
-python -m src.cli.main serve
-```
+# Using the API
 
 ## API
 
@@ -40,7 +24,7 @@ The API also exposes a `/health` endpoint for a simple status check.
 ## Backups
 
 The helper script `scripts/backup.py` creates a timestamped copy of the
-SQLite database. The destination directory is controlled by the
+JSONL data files. The destination directory is controlled by the
 `BACKUP_DIR` environment variable which defaults to `./backups`.
 
 Run the script whenever you want to capture a backup:
