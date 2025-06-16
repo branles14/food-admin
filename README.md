@@ -15,6 +15,7 @@ Product information entries are identified by UUID strings rather than numeric I
 - `nutrition` - nutritional details, including vitamins and minerals
 - `upc` - UPC identifier
 - `uuid` - unique identifier
+- `tags` - labels like "frozen" or "canned"
 
 ### Inventory Item
 - `product_info` - reference to catalog data
@@ -46,6 +47,8 @@ and `protein`. It also supports micronutrients including:
 2. Copy `.env.example` to `.env` and adjust the paths if desired. The default
    configuration stores data locally under the `data/` directory using JSONL
    files at `data/inventory.ndjson` and `data/product-info.ndjson`.
+   An empty `inventory.ndjson` file is included so the service can start
+   without creating it manually.
 3. Run `python3 scripts/setup.py` to install dependencies and create or update
    the systemd service. The script also creates the data files if they do
    not exist. The `requirements.txt` file pins `httpx` to versions

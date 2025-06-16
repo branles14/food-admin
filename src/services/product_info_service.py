@@ -16,6 +16,8 @@ def _normalize(row: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     data = dict(row)
     if "nutrition" in data and data["nutrition"] is not None:
         data["nutrition"] = json.loads(json.dumps(data["nutrition"]))
+    if "tags" in data and data["tags"] is not None:
+        data["tags"] = json.loads(json.dumps(data["tags"]))
     return data
 
 
@@ -31,6 +33,7 @@ def create_product_info(db: JsonlDB, data: Dict[str, Any]) -> Dict[str, Any]:
         "upc": data.get("upc"),
         "uuid": data.get("uuid", shortuuid.uuid()),
         "nutrition": filter_nutrition(data.get("nutrition")),
+        "tags": data.get("tags"),
     }
     rows.append(item)
     db.write_all(rows)
@@ -68,6 +71,8 @@ def update_product_info(
             row_update = data.copy()
             if "nutrition" in row_update:
                 row_update["nutrition"] = filter_nutrition(row_update["nutrition"])
+            if "tags" in row_update:
+                row_update["tags"] = row_update["tags"]
             row.update(row_update)
             updated = row
             break
