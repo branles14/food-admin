@@ -48,7 +48,7 @@ async def health(db: Connection = Depends(inventory_conn)) -> JSONResponse:
         raise HTTPException(status_code=500, detail=str(exc))
 
 
-@app.get("/items")
+@app.get("/inventory")
 async def list_items(
     inv_db: Connection = Depends(inventory_conn),
     prod_db: Connection = Depends(product_conn),
@@ -60,7 +60,7 @@ async def list_items(
     )
 
 
-@app.post("/items", status_code=201)
+@app.post("/inventory", status_code=201)
 async def create_item(
     data: ItemCreate,
     inv_db: Connection = Depends(inventory_conn),
@@ -74,7 +74,7 @@ async def create_item(
     )
 
 
-@app.patch("/items/{id}")
+@app.patch("/inventory/{id}")
 async def update_item(
     id: Any,
     data: ItemUpdate,
@@ -93,7 +93,7 @@ async def update_item(
     return product
 
 
-@app.delete("/items/{id}")
+@app.delete("/inventory/{id}")
 async def delete_item(id: Any, inv_db: Connection = Depends(inventory_conn)) -> Any:
     deleted = await run_in_threadpool(
         item_service.delete_item,

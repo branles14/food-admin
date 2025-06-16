@@ -20,20 +20,20 @@ python -m src.cli.main serve
 
 With the server running, you can interact with the REST endpoints. Examples:
 
-- List items: `GET /items`
+- List items: `GET /inventory`
 - Create item:
   ```bash
-  curl -X POST http://localhost:3000/items \
+  curl -X POST http://localhost:3000/inventory \
     -H 'Content-Type: application/json' \
     -d '{"product": 1, "quantity": 1}'
   ```
  - Update item:
   ```bash
-  curl -X PATCH http://localhost:3000/items/<id> \
+  curl -X PATCH http://localhost:3000/inventory/<id> \
     -H 'Content-Type: application/json' \
     -d '{"quantity": 3}'
   ```
-- Delete item: `DELETE /items/<id>`
+- Delete item: `DELETE /inventory/<id>`
 
 The API also exposes a `/health` endpoint for a simple status check.
 

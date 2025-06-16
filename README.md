@@ -42,7 +42,7 @@ The project uses SQLite to store product and inventory information.
    app using `python -m src.cli.main`.
 5. Visit `http://localhost:3000/health` to verify the service is running.
 6. (Optional) Seed example data with `python3 scripts/seeds.py`.
-7. Retrieve the current inventory with `curl http://localhost:3000/items`.
+7. Retrieve the current inventory with `curl http://localhost:3000/inventory`.
 8. Run `python3 scripts/backup.py` to create a timestamped backup in the
    directory specified by `BACKUP_DIR`. See the [Backups section](docs/usage.md#backups)
    in the usage guide for more details. To automate backups with cron,
