@@ -17,5 +17,5 @@ def inventory_db(tmp_path) -> Generator[JsonlDB, None, None]:
 
 @pytest.fixture()
 def product_db(tmp_path) -> Generator[JsonlDB, None, None]:
-    db = JsonlDB(tmp_path / "products.jsonl")
+    db = JsonlDB(tmp_path / "product-info.ndjson")
     yield db
