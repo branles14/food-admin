@@ -57,8 +57,7 @@ def test_create_list_update_delete_item(inventory_db, product_db):
 
 def test_update_item_all_fields(inventory_db, product_db):
     prod1 = setup_product(product_db)
-    prod2 = item_service.create_item(
-        product_db,
+    prod2 = product_info_service.create_product_info(
         product_db,
         {"name": "Yogurt", "upc": "789", "uuid": "uuid3", "nutrition": None},
     )
@@ -110,7 +109,7 @@ def test_create_item_requires_upc(inventory_db, product_db):
         item_service.create_item(
             inventory_db,
             product_db,
-            {"product": 1, "quantity": 1},
+            {"product": "1", "quantity": 1},
         )
 
 

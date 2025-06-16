@@ -26,7 +26,7 @@ def _next_id(rows: List[Dict[str, Any]]) -> int:
 def create_product_info(db: JsonlDB, data: Dict[str, Any]) -> Dict[str, Any]:
     rows = db.read_all()
     item = {
-        "id": _next_id(rows),
+        "id": shortuuid.uuid(),
         "name": data.get("name"),
         "upc": data.get("upc"),
         "uuid": data.get("uuid", shortuuid.uuid()),
@@ -40,7 +40,7 @@ def create_product_info(db: JsonlDB, data: Dict[str, Any]) -> Dict[str, Any]:
 def get_product_info_by_id(db: JsonlDB, id_: Any) -> Optional[Dict[str, Any]]:
     rows = db.read_all()
     for row in rows:
-        if row.get("id") == int(id_):
+        if str(row.get("id")) == str(id_):
             return _normalize(row)
     return None
 
@@ -63,7 +63,8 @@ def update_product_info(
     rows = db.read_all()
     updated = None
     for row in rows:
-        if row.get("id") == int(id_):
+        if str(row.get("id")) == str(id_):
+
             row_update = data.copy()
             if "nutrition" in row_update:
                 row_update["nutrition"] = filter_nutrition(row_update["nutrition"])
@@ -78,7 +79,7 @@ def update_product_info(
 
 def delete_product_info(db: JsonlDB, id_: Any) -> bool:
     rows = db.read_all()
-    new_rows = [row for row in rows if row.get("id") != int(id_)]
+    new_rows = [row for row in rows if str(row.get("id")) != str(id_)]
     if len(new_rows) == len(rows):
         return False
     db.write_all(new_rows)

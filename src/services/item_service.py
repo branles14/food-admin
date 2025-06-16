@@ -39,7 +39,7 @@ def create_item(
     nutrition = data.get("nutrition")
     if isinstance(product, dict):
         if product.get("id") is not None:
-            product_id = int(product.get("id"))
+            product_id = str(product.get("id"))
             info = product_info_service.get_product_info_by_id(prod_db, product_id)
             if info is None:
                 raise ValueError("Product not found")
@@ -51,7 +51,7 @@ def create_item(
             name = name or product.get("name")
             nutrition = nutrition or product.get("nutrition")
     elif product is not None:
-        product_id = int(product)
+        product_id = str(product)
         info = product_info_service.get_product_info_by_id(prod_db, product_id)
         if info is None:
             raise ValueError("Product not found")
@@ -117,7 +117,7 @@ def update_item(
                 prod = data["product"]
                 if isinstance(prod, dict):
                     prod = prod.get("id")
-                row["product_id"] = int(prod) if prod is not None else None
+                row["product_id"] = str(prod) if prod is not None else None
             if "quantity" in data:
                 row["quantity"] = data["quantity"]
             if "opened" in data:
