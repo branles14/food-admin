@@ -24,7 +24,7 @@
 
 ## Scheduled Backups
 
-Automate database backups by running `scripts/backup.py` through cron. The script relies on the `DATA_DIR`, `DATABASE_URL` and `BACKUP_DIR` environment variables which should mirror your `.env` configuration.
+Automate database backups by running `scripts/backup.py` through cron. The script relies on the `DATA_DIR` and `BACKUP_DIR` environment variables which should mirror your `.env` configuration.
 
 Example entry for a daily backup at 2 AM:
 

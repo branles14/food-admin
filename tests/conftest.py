@@ -11,7 +11,7 @@ from src.db import JsonlDB
 
 @pytest.fixture()
 def inventory_db(tmp_path) -> Generator[JsonlDB, None, None]:
-    db = JsonlDB(tmp_path / "inventory.jsonl")
+    db = JsonlDB(tmp_path / "inventory.ndjson")
     yield db
 
 
