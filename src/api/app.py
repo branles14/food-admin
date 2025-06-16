@@ -40,7 +40,7 @@ async def product_conn() -> JsonlDB:
 @app.get("/health")
 async def health(db: JsonlDB = Depends(inventory_conn)) -> JSONResponse:
     try:
-        await run_in_threadpool(db.execute, "SELECT 1")
+        await run_in_threadpool(db.read_all)
         return JSONResponse({"status": "ok"})
     except Exception as exc:  # pragma: no cover - simple healthcheck
         raise HTTPException(status_code=500, detail=str(exc))

@@ -22,7 +22,6 @@ def ensure_dependencies() -> None:
         importlib.import_module("fastapi")
         importlib.import_module("uvicorn")
         importlib.import_module("dotenv")
-        importlib.import_module("sqlalchemy")
         importlib.import_module("httpx")
     except Exception:
         print("Installing Python dependencies...")
