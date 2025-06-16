@@ -11,6 +11,8 @@ from src import config
 
 _inventory_conn: Optional[Connection] = None
 _product_conn: Optional[Connection] = None
+_inventory_url: Optional[str] = None
+_product_url: Optional[str] = None
 
 
 def _init_product_db(conn: Connection) -> None:
@@ -68,22 +70,24 @@ def _connect(url: str) -> Connection:
 def get_inventory_db() -> Connection:
     """Return the inventory database connection."""
 
-    global _inventory_conn
-    if _inventory_conn is None:
-        url = config.get_inventory_database_url()
+    global _inventory_conn, _inventory_url
+    url = config.get_inventory_database_url()
+    if _inventory_conn is None or _inventory_url != url:
         _inventory_conn = _connect(url)
         _init_inventory_db(_inventory_conn)
+        _inventory_url = url
     return _inventory_conn
 
 
 def get_product_db() -> Connection:
     """Return the products database connection."""
 
-    global _product_conn
-    if _product_conn is None:
-        url = config.get_product_database_url()
+    global _product_conn, _product_url
+    url = config.get_product_database_url()
+    if _product_conn is None or _product_url != url:
         _product_conn = _connect(url)
         _init_product_db(_product_conn)
+        _product_url = url
     return _product_conn
 
 
