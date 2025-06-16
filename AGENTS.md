@@ -1,16 +1,4 @@
-
----
-name: "food-admin"
-description: "A Unix-style food inventory management service for Debian-based Linux systems, built in Python. Exposes a CLI utility and AI-compatible API for use in intelligent meal planning, grocery guidance, and macro tracking."
-category: "AI Data Services"
-author: "Suki"
-authorUrl: "https://github.com/branles14"
-tags: ["food", "inventory", "cli", "ai", "nutrition"]
----
-
 # food-admin
-
-## Project Overview
 
 food-admin is a backend service that provides precise food inventory tracking for use by AI agents and automation tools. Its goal is to offload cognitive strain around meal planning, macro tracking, and grocery shopping by maintaining an up-to-date, queryable state of all food items.
 
