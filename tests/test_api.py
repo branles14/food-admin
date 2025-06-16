@@ -74,7 +74,7 @@ def test_create_item_requires_upc_via_api(inventory_db, product_db):
     app.dependency_overrides[app_product_conn] = lambda: product_db
     client = TestClient(app)
 
-    resp = client.post("/inventory", json={"product": 1, "quantity": 1})
+    resp = client.post("/inventory", json={"product": "1", "quantity": 1})
     assert resp.status_code == 400
 
     app.dependency_overrides.clear()

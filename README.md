@@ -7,8 +7,10 @@ See the [docs](docs/) directory for an overview of the architecture, setup instr
 ## Features
 
 The project stores product and inventory data in simple JSON Lines files.
+Product information entries are identified by UUID strings rather than numeric IDs.
 
 ### Product Info
+- `id` - unique product identifier (UUID string)
 - `name` - product name
 - `nutrition` - nutritional details, including vitamins and minerals
 - `upc` - UPC identifier
