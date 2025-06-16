@@ -63,9 +63,9 @@ def create_service() -> None:
     )
     action = "Created"
     if os.path.isfile(SERVICE_FILE):
-        with open(SERVICE_FILE) as f:
-            if expected_exec in f.read():
-                return
+        subprocess.run(["sudo", "systemctl", "stop", "foodadmin"], check=False)
+        subprocess.run(["sudo", "systemctl", "disable", "foodadmin"], check=False)
+        subprocess.run(["sudo", "rm", "-f", SERVICE_FILE])
         action = "Updated"
 
     service_content = textwrap.dedent(
