@@ -5,6 +5,7 @@ from src.cli import main as cli_main
 
 def run_cli(args, monkeypatch, tmp_db):
     monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_db}")
+    monkeypatch.setenv("PRODUCT_DATABASE_URL", f"sqlite:///{tmp_db}")
     parser = cli_main.build_parser()
     parsed = parser.parse_args(args)
     outputs = []

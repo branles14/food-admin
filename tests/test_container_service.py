@@ -18,6 +18,7 @@ def test_create_list_update_delete_container(db_conn):
 
     container = container_service.create_container(
         db_conn,
+        db_conn,
         {
             "product": product["id"],
             "quantity": 1,
@@ -34,10 +35,11 @@ def test_create_list_update_delete_container(db_conn):
     assert container["tags"] == ["dairy"]
     assert container["container_weight"] == 200
 
-    containers = container_service.list_containers(db_conn)
+    containers = container_service.list_containers(db_conn, db_conn)
     assert len(containers) == 1
 
     updated = container_service.update_container(
+        db_conn,
         db_conn,
         container["id"],
         {"remaining": 0.5, "tags": ["dairy", "open"], "container_weight": 250},
@@ -48,7 +50,7 @@ def test_create_list_update_delete_container(db_conn):
 
     result = container_service.delete_container(db_conn, container["id"])
     assert result is True
-    assert container_service.list_containers(db_conn) == []
+    assert container_service.list_containers(db_conn, db_conn) == []
 
 
 def test_update_container_all_fields(db_conn):
@@ -59,6 +61,7 @@ def test_update_container_all_fields(db_conn):
     )
 
     container = container_service.create_container(
+        db_conn,
         db_conn,
         {
             "product": prod1["id"],
@@ -73,6 +76,7 @@ def test_update_container_all_fields(db_conn):
     )
 
     updated = container_service.update_container(
+        db_conn,
         db_conn,
         container["id"],
         {
