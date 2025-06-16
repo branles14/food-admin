@@ -5,7 +5,22 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
+
+try:  # pragma: no cover - optional dependency
+    import readline  # noqa: F401
+except Exception:  # pragma: no cover - Windows or missing module
+    readline = None
+
+
+def prompt(text: str) -> str:
+    """Return user input handling Ctrl+C gracefully."""
+    try:
+        return input(text)
+    except KeyboardInterrupt:  # pragma: no cover - runtime only
+        print("\nCancelled.")
+        raise SystemExit(1)
+
 
 import uvicorn
 
@@ -26,26 +41,49 @@ def add_item(args: argparse.Namespace) -> None:
     inv_conn = get_inventory_db()
     prod_conn = get_product_db()
 
+    upc = args.upc
+    if upc is None and args.product_info is None:
+        upc = prompt("UPC: ").strip()
+
     product = None
-    if getattr(args, "upc", None):
-        product = product_info_service.get_product_info_by_upc(prod_conn, args.upc)
+    if upc:
+        product = product_info_service.get_product_info_by_upc(prod_conn, upc)
         if product is None:
-            name = input("Product name: ")
-            size_in = input("Package size: ")
+            name = prompt("Product name: ")
+            size_in = prompt("Package size: ")
             metric_size = unit_conversion.format_metric(size_in)
-            nutrition_raw = input("Nutrition facts JSON: ")
-            nutrition = json.loads(nutrition_raw) if nutrition_raw else None
-            nutrition = {"package_size": metric_size, "facts": nutrition}
+            serving_size = prompt("Serving size: ")
+
+            def ask(text: str, parser: Tuple[type, ...] = (str,)) -> Any:
+                val = prompt(f"{text}: ")
+                if parser[0] is int and val:
+                    return int(val)
+                return val
+
+            facts = {
+                "serving_size": serving_size,
+                "calories": ask("Calories", (int,)),
+                "total_fat": ask("Total Fat"),
+                "saturated_fat": ask("Saturated Fat"),
+                "trans_fat": ask("Trans Fat"),
+                "sodium": ask("Sodium"),
+                "total_carbohydrate": ask("Total Carbohydrate"),
+                "dietary_fiber": ask("Dietary Fiber"),
+                "sugars": ask("Sugars"),
+                "added_sugars": ask("Added Sugars"),
+                "protein": ask("Protein"),
+            }
+            nutrition = {"package_size": metric_size, "facts": facts}
             product = product_info_service.create_product_info(
                 prod_conn,
                 {
                     "name": name,
-                    "upc": args.upc,
+                    "upc": upc,
                     "uuid": str(uuid4()),
                     "nutrition": nutrition,
                 },
             )
-        qty_inp = input("Quantity: ")
+        qty_inp = prompt("Quantity: ")
         count = int(qty_inp) if qty_inp else 1
         outputs = []
         for _ in range(count):
