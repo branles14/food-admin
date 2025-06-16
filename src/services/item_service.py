@@ -36,6 +36,7 @@ def create_item(
     product = data.get("product")
     upc = data.get("upc")
     name = data.get("name")
+    nutrition = data.get("nutrition")
     if isinstance(product, dict):
         if product.get("id") is not None:
             product_id = int(product.get("id"))
@@ -48,6 +49,7 @@ def create_item(
             product_id = None
             upc = upc or product.get("upc")
             name = name or product.get("name")
+            nutrition = nutrition or product.get("nutrition")
     elif product is not None:
         product_id = int(product)
         info = product_info_service.get_product_info_by_id(prod_db, product_id)
@@ -69,7 +71,7 @@ def create_item(
             if not name:
                 raise ValueError("Name required for unknown UPC")
             new_prod = product_info_service.create_product_info(
-                prod_db, {"name": name, "upc": upc}
+                prod_db, {"name": name, "upc": upc, "nutrition": nutrition}
             )
             product_id = new_prod["id"]
     data.setdefault("uuid", shortuuid.uuid())

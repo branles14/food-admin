@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -15,6 +15,7 @@ class ItemCreate(BaseModel):
     product: Optional[Any] = None
     upc: Optional[str] = None
     name: Optional[str] = None
+    nutrition: Optional[Dict[str, Any]] = None
     quantity: Optional[int] = None
     opened: Optional[bool] = None
     remaining: Optional[float] = None
