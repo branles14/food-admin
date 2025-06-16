@@ -30,7 +30,7 @@ def test_product_api_crud(db_conn):
 
     # create inventory product
     resp = client.post(
-        "/items",
+        "/inventory",
         json={
             "product": prod_info["id"],
             "quantity": 1,
@@ -44,13 +44,13 @@ def test_product_api_crud(db_conn):
     item_id = item["id"]
 
     # list products
-    resp = client.get("/items")
+    resp = client.get("/inventory")
     assert resp.status_code == 200
     assert len(resp.json()) == 1
 
     # update container
     resp = client.patch(
-        f"/items/{item_id}",
+        f"/inventory/{item_id}",
         json={"quantity": 2, "tags": ["baked", "fresh"]},
     )
     assert resp.status_code == 200
@@ -59,11 +59,11 @@ def test_product_api_crud(db_conn):
     assert data["tags"] == ["baked", "fresh"]
 
     # delete product
-    resp = client.delete(f"/items/{item_id}")
+    resp = client.delete(f"/inventory/{item_id}")
     assert resp.status_code == 200
     assert resp.json()["message"] == "Item deleted"
 
     # verify deleted
-    assert client.get("/items").json() == []
+    assert client.get("/inventory").json() == []
 
     app.dependency_overrides.clear()
