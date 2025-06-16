@@ -53,11 +53,14 @@ async def list_items(
     inv_db: JsonlDB = Depends(inventory_conn),
     prod_db: JsonlDB = Depends(product_conn),
 ) -> Any:
-    return await run_in_threadpool(
+    items = await run_in_threadpool(
         item_service.list_items,
         inv_db,
         prod_db,
     )
+    if not items:
+        return {"message": "Inventory empty"}
+    return items
 
 
 @app.post("/inventory", status_code=201)

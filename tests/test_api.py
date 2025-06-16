@@ -64,7 +64,7 @@ def test_product_api_crud(inventory_db, product_db):
     assert resp.json()["message"] == "Item deleted"
 
     # verify deleted
-    assert client.get("/inventory").json() == []
+    assert client.get("/inventory").json() == {"message": "Inventory empty"}
 
     app.dependency_overrides.clear()
 
@@ -104,4 +104,35 @@ def test_create_item_unknown_upc_needs_name_via_api(inventory_db, product_db):
     resp = client.post("/inventory", json={"upc": "999", "quantity": 1})
     assert resp.status_code == 400
 
+    app.dependency_overrides.clear()
+
+
+def test_inventory_empty_when_file_missing(inventory_db, product_db):
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
+    inventory_db.path.unlink()
+    client = TestClient(app)
+    resp = client.get("/inventory")
+    assert resp.status_code == 200
+    assert resp.json() == {"message": "Inventory empty"}
+    prod = product_info_service.create_product_info(
+        product_db, {"name": "Rice", "upc": "333"}
+    )
+    resp = client.post(
+        "/inventory",
+        json={"product": prod["id"], "quantity": 1},
+    )
+    assert resp.status_code == 201
+    assert inventory_db.path.exists()
+    app.dependency_overrides.clear()
+
+
+def test_inventory_empty_when_file_has_brackets(inventory_db, product_db):
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
+    inventory_db.path.write_text("[]\n")
+    client = TestClient(app)
+    resp = client.get("/inventory")
+    assert resp.status_code == 200
+    assert resp.json() == {"message": "Inventory empty"}
     app.dependency_overrides.clear()
