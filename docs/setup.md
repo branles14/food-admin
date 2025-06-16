@@ -10,7 +10,9 @@
    pip install -r requirements.txt
    ```
 4. Copy `.env.example` to `.env` and adjust paths if necessary. The defaults place the JSONL data files under `data/`.
-5. Run the setup script to create or update the database and systemd service:
+5. Run the setup script to create or update the database and systemd service.
+   The script stops and removes any existing `foodadmin` unit so updates are
+   applied correctly:
    ```bash
    python3 scripts/setup.py
    ```
@@ -22,7 +24,7 @@
 
 ## Scheduled Backups
 
-Automate database backups by running `scripts/backup.py` through cron. The script relies on the `DATA_DIR`, `DATABASE_URL` and `BACKUP_DIR` environment variables which should mirror your `.env` configuration.
+Automate database backups by running `scripts/backup.py` through cron. The script relies on the `DATA_DIR` and `BACKUP_DIR` environment variables which should mirror your `.env` configuration.
 
 Example entry for a daily backup at 2 AM:
 

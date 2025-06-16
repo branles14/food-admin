@@ -21,12 +21,8 @@ def get_backup_dir() -> Path:
 
 
 def get_inventory_database_url() -> str:
-    """Return the configured inventory data file."""
-    default_path = get_data_dir() / "inventory.jsonl"
-    return os.environ.get(
-        "INVENTORY_DATABASE_URL",
-        os.environ.get("DATABASE_URL", str(default_path)),
-    )
+    """Return the inventory data file path."""
+    return str(get_data_dir() / "inventory.ndjson")
 
 
 def get_product_database_url() -> str:
