@@ -33,7 +33,7 @@ The project stores product and inventory data in simple JSON Lines files.
 1. Clone this repository.
 2. Copy `.env.example` to `.env` and adjust the paths if desired. The default
    configuration stores data locally under the `data/` directory using JSONL
-   files at `data/inventory.ndjson` and `data/products.jsonl`.
+   files at `data/inventory.ndjson` and `data/product-info.ndjson`.
 3. Run `python3 scripts/setup.py` to install dependencies and create or update
    the systemd service. The script also creates the data files if they do
    not exist. The `requirements.txt` file pins `httpx` to versions

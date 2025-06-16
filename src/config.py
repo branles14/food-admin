@@ -27,7 +27,7 @@ def get_inventory_database_url() -> str:
 
 def get_product_database_url() -> str:
     """Return the configured products data file."""
-    default_path = get_data_dir() / "products.jsonl"
+    default_path = get_data_dir() / "product-info.ndjson"
     return os.environ.get("PRODUCT_DATABASE_URL", str(default_path))
 
 
