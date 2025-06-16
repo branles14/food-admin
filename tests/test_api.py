@@ -190,3 +190,29 @@ def test_uuid_routes(inventory_db, product_db):
     assert resp.json()["message"] == "Item deleted"
 
     app.dependency_overrides.clear()
+
+
+def test_consume_route(inventory_db, product_db):
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
+    client = TestClient(app)
+
+    prod = product_info_service.create_product_info(
+        product_db,
+        {"name": "Soup", "upc": "666"},
+    )
+
+    item = item_service.create_item(
+        inventory_db,
+        product_db,
+        {"product": prod["id"], "remaining": 1.0},
+    )
+
+    resp = client.post(
+        f"/inventory/{item['id']}/consume",
+        json={"amount": 0.5},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["remaining"] == 0.5
+
+    app.dependency_overrides.clear()

@@ -207,3 +207,22 @@ def delete_item_by_uuid(inv_db: JsonlDB, uuid: Any) -> bool:
         return False
     inv_db.write_all(new_items)
     return True
+
+
+def consume_item(
+    inv_db: JsonlDB, prod_db: JsonlDB, id_: Any, amount: float
+) -> Optional[Dict[str, Any]]:
+    """Decrease remaining by amount for the item with the given id."""
+
+    items = inv_db.read_all()
+    updated = None
+    for row in items:
+        if row.get("id") == int(id_):
+            current = row.get("remaining") or 0
+            row["remaining"] = max(0.0, current - amount)
+            updated = row
+            break
+    if updated is None:
+        return None
+    inv_db.write_all(items)
+    return _normalize(prod_db, updated)

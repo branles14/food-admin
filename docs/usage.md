@@ -26,6 +26,12 @@ With the server running, you can interact with the REST endpoints. Examples:
     -d '{"quantity": 3}'
   ```
 - Delete item by UUID: `DELETE /inventory/uuid/<uuid>`
+- Consume amount from an item:
+  ```bash
+  curl -X POST http://localhost:3000/inventory/<id>/consume \
+    -H 'Content-Type: application/json' \
+    -d '{"amount": 0.5}'
+  ```
 
 The API also exposes a `/health` endpoint for a simple status check.
 
