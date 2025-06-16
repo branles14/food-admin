@@ -6,9 +6,9 @@ It is not a meal planner itself, but a foundational component designed to integr
 
 ## Tech Stack
 
-- **Frontend**: CLI and API only
+- **Interface**: REST API only
 - **Backend**: Python 3, FastAPI
-- **Database**: SQLite
+- **Database**: JSONL flat files
 - **Deployment**: VPS, Raspberry Pi
 - **Other Tools**: Git, systemd
 
@@ -31,23 +31,14 @@ It is not a meal planner itself, but a foundational component designed to integr
 
 ### Inventory Tracking
 
-- CLI commands to add, update, list and delete items from the inventory
-- Products database for quickly adding products to the inventory
+- Endpoints to add, update, list and delete items from the inventory
+- Products database for quickly adding products by UPC
 - Support for quantities, expiration, location, tags, and empty container weights
 
 ### API for AI Function Calling
 
 - Exposes REST endpoints for querying and updating inventory
 - Supports integration with ChatGPT-style agents
-- Mirrors CLI functionality
-
-### Example Scenario
-
-Let’s say I buy Jif Creamy Peanut Butter Pouch for the first time. I give the CLI the UPC 051500245453. Since it’s not in the products database yet, the CLI asks me to provide the product name, nutrition facts (one by one), and the amount it contains (e.g. 13oz). The program automatically converts all measurements to metric and stores them that way in the database.
-
-Once the product info is saved, the CLI asks how many I’m adding to my inventory. I say “2,” so it adds two instances of Jif Creamy Peanut Butter Pouch to my inventory database, each with a unique UUID.
-
-Then, next time I buy more of the same peanut butter, I just enter the same UPC. The CLI recognizes it from the products database and simply asks how many I want to add—no need to re-enter any product details
 
 ## Testing Strategy
 
