@@ -10,7 +10,7 @@ The project stores product and inventory data in simple JSON Lines files.
 
 ### Product Info
 - `name` - product name
-- `nutrition` - nutritional details
+- `nutrition` - nutritional details, including vitamins and minerals
 - `upc` - UPC identifier
 - `uuid` - unique identifier
 
@@ -23,6 +23,16 @@ The project stores product and inventory data in simple JSON Lines files.
 - `location` - where the item is stored
 - `tags` - labels for categorization
 - `container_weight` - weight of the empty container
+
+### Supported Nutrition Fields
+
+The `nutrition` object accepts standard keys such as `calories`, `total_fat`,
+and `protein`. It also supports micronutrients including:
+
+`vitamin_a`, `vitamin_c`, `vitamin_k`, `thiamin_b1`, `riboflavin_b2`,
+`vitamin_b6`, `vitamin_b12`, `folate`, `biotin`, `pantothenic_acid`,
+`phosphorus`, `magnesium`, `selenium`, `manganese`, `molybdenum`, `iodine`,
+`zinc`, `copper`, and `chromium`.
 
 ## Prerequisites
 

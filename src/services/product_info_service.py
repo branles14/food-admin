@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional
 
+from src.utils.nutrition import filter_nutrition
+
 import shortuuid
 
 from src.db import JsonlDB
@@ -28,7 +30,7 @@ def create_product_info(db: JsonlDB, data: Dict[str, Any]) -> Dict[str, Any]:
         "name": data.get("name"),
         "upc": data.get("upc"),
         "uuid": data.get("uuid", shortuuid.uuid()),
-        "nutrition": data.get("nutrition"),
+        "nutrition": filter_nutrition(data.get("nutrition")),
     }
     rows.append(item)
     db.write_all(rows)
@@ -62,7 +64,10 @@ def update_product_info(
     updated = None
     for row in rows:
         if row.get("id") == int(id_):
-            row.update(data)
+            row_update = data.copy()
+            if "nutrition" in row_update:
+                row_update["nutrition"] = filter_nutrition(row_update["nutrition"])
+            row.update(row_update)
             updated = row
             break
     if updated is None:
