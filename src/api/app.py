@@ -13,6 +13,8 @@ from src.services import item_service, product_info_service
 
 class ItemCreate(BaseModel):
     product: Optional[Any] = None
+    upc: Optional[str] = None
+    name: Optional[str] = None
     quantity: Optional[int] = None
     opened: Optional[bool] = None
     remaining: Optional[float] = None
@@ -64,12 +66,15 @@ async def create_item(
     inv_db: JsonlDB = Depends(inventory_conn),
     prod_db: JsonlDB = Depends(product_conn),
 ) -> Any:
-    return await run_in_threadpool(
-        item_service.create_item,
-        inv_db,
-        prod_db,
-        data.dict(exclude_unset=True),
-    )
+    try:
+        return await run_in_threadpool(
+            item_service.create_item,
+            inv_db,
+            prod_db,
+            data.dict(exclude_unset=True),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.patch("/inventory/{id}")
