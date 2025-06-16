@@ -14,11 +14,11 @@ _product_conn: Optional[Connection] = None
 
 
 def _init_product_db(conn: Connection) -> None:
-    """Create products table if it does not already exist."""
+    """Create product_info table if it does not already exist."""
 
     conn.execute(
         """
-        CREATE TABLE IF NOT EXISTS products (
+        CREATE TABLE IF NOT EXISTS product_info (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             upc TEXT,
@@ -31,11 +31,11 @@ def _init_product_db(conn: Connection) -> None:
 
 
 def _init_inventory_db(conn: Connection) -> None:
-    """Create containers table if it does not already exist."""
+    """Create inventory table if it does not already exist."""
 
     conn.execute(
         """
-        CREATE TABLE IF NOT EXISTS containers (
+        CREATE TABLE IF NOT EXISTS inventory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             product_id INTEGER,
             quantity INTEGER,

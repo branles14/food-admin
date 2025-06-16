@@ -28,7 +28,7 @@ def test_cli_add_update_delete(monkeypatch, tmp_path, tmp_db):
     add_out = run_cli(
         [
             "add",
-            "--product",
+            "--product-info",
             "1",
             "--quantity",
             "2",
@@ -58,7 +58,7 @@ def test_cli_update_extra_and_serve(monkeypatch, tmp_db):
     add_out = run_cli(
         [
             "add",
-            "--product",
+            "--product-info",
             "2",
             "--quantity",
             "1",
@@ -72,7 +72,7 @@ def test_cli_update_extra_and_serve(monkeypatch, tmp_db):
         [
             "update",
             str(cid),
-            "--product",
+            "--product-info",
             "3",
             "--quantity",
             "4",
@@ -114,5 +114,5 @@ def test_cli_add_upc_flow(monkeypatch, tmp_db):
     outputs = run_cli(["add", "--upc", "999"], monkeypatch, tmp_db)
     assert len(outputs) == 2
     for out in outputs:
-        assert out["product"]["upc"] == "999"
-        assert out["product"]["nutrition"]["package_size"] == "454 g"
+        assert out["product_info"]["upc"] == "999"
+        assert out["product_info"]["nutrition"]["package_size"] == "454 g"

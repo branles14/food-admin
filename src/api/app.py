@@ -10,10 +10,10 @@ from starlette.concurrency import run_in_threadpool
 from sqlite3 import Connection
 
 from src.db import get_inventory_db, get_product_db
-from src.services import container_service
+from src.services import item_service, product_info_service
 
 
-class ContainerCreate(BaseModel):
+class ItemCreate(BaseModel):
     product: Optional[Any] = None
     quantity: Optional[int] = None
     opened: Optional[bool] = None
@@ -24,7 +24,7 @@ class ContainerCreate(BaseModel):
     container_weight: Optional[int] = None
 
 
-class ContainerUpdate(ContainerCreate):
+class ItemUpdate(ItemCreate):
     pass
 
 
@@ -48,63 +48,61 @@ async def health(db: Connection = Depends(inventory_conn)) -> JSONResponse:
         raise HTTPException(status_code=500, detail=str(exc))
 
 
-@app.get("/containers")
-async def list_containers(
+@app.get("/items")
+async def list_items(
     inv_db: Connection = Depends(inventory_conn),
     prod_db: Connection = Depends(product_conn),
 ) -> Any:
     return await run_in_threadpool(
-        container_service.list_containers,
+        item_service.list_items,
         inv_db,
         prod_db,
     )
 
 
-@app.post("/containers", status_code=201)
-async def create_container(
-    data: ContainerCreate,
+@app.post("/items", status_code=201)
+async def create_item(
+    data: ItemCreate,
     inv_db: Connection = Depends(inventory_conn),
     prod_db: Connection = Depends(product_conn),
 ) -> Any:
     return await run_in_threadpool(
-        container_service.create_container,
+        item_service.create_item,
         inv_db,
         prod_db,
         data.dict(exclude_unset=True),
     )
 
 
-@app.patch("/containers/{id}")
-async def update_container(
+@app.patch("/items/{id}")
+async def update_item(
     id: Any,
-    data: ContainerUpdate,
+    data: ItemUpdate,
     inv_db: Connection = Depends(inventory_conn),
     prod_db: Connection = Depends(product_conn),
 ) -> Any:
-    container = await run_in_threadpool(
-        container_service.update_container,
+    product = await run_in_threadpool(
+        item_service.update_item,
         inv_db,
         prod_db,
         id,
         data.dict(exclude_unset=True),
     )
-    if not container:
-        raise HTTPException(status_code=404, detail="Container not found")
-    return container
+    if not product:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return product
 
 
-@app.delete("/containers/{id}")
-async def delete_container(
-    id: Any, inv_db: Connection = Depends(inventory_conn)
-) -> Any:
+@app.delete("/items/{id}")
+async def delete_item(id: Any, inv_db: Connection = Depends(inventory_conn)) -> Any:
     deleted = await run_in_threadpool(
-        container_service.delete_container,
+        item_service.delete_item,
         inv_db,
         id,
     )
     if deleted:
-        return {"message": "Container deleted"}
-    raise HTTPException(status_code=404, detail="Container not found")
+        return {"message": "Item deleted"}
+    raise HTTPException(status_code=404, detail="Item not found")
 
 
 if __name__ == "__main__":  # pragma: no cover
