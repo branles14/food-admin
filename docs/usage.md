@@ -40,7 +40,7 @@ The API also exposes a `/health` endpoint for a simple status check.
 ## Backups
 
 The helper script `scripts/backup.py` creates a timestamped copy of the
-SQLite database. The destination directory is controlled by the
+JSONL data files. The destination directory is controlled by the
 `BACKUP_DIR` environment variable which defaults to `./backups`.
 
 Run the script whenever you want to capture a backup:

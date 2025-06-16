@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a timestamped backup of the SQLite database."""
+"""Create a timestamped backup of the JSONL data files."""
 from __future__ import annotations
 
 import shutil
@@ -14,22 +14,20 @@ from src import config
 
 
 def main() -> None:
-    db_url = config.get_database_url()
-    if not db_url.startswith("sqlite:///"):
-        raise SystemExit("Only SQLite backups are supported")
-
-    start = len("sqlite:///")
-    db_path = Path(db_url[start:])
-    if not db_path.exists():
-        raise SystemExit(f"Database file {db_path} does not exist")
+    db_path = Path(config.get_database_url())
+    prod_path = Path(config.get_product_database_url())
+    if not db_path.exists() or not prod_path.exists():
+        raise SystemExit("Data files do not exist")
 
     backup_dir = config.get_backup_dir()
     backup_dir.mkdir(parents=True, exist_ok=True)
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_file = backup_dir / f"inventory_{timestamp}.db"
-    shutil.copy2(db_path, backup_file)
-    print(f"Backup written to {backup_file}")
+    inv_backup = backup_dir / f"inventory_{timestamp}.jsonl"
+    prod_backup = backup_dir / f"products_{timestamp}.jsonl"
+    shutil.copy2(db_path, inv_backup)
+    shutil.copy2(prod_path, prod_backup)
+    print(f"Backup written to {inv_backup} and {prod_backup}")
 
 
 if __name__ == "__main__":

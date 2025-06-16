@@ -4,8 +4,10 @@ from src.cli import main as cli_main
 
 
 def run_cli(args, monkeypatch, tmp_db):
-    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_db}")
-    monkeypatch.setenv("PRODUCT_DATABASE_URL", f"sqlite:///{tmp_db}")
+    inv = tmp_db / "inventory.jsonl"
+    prod = tmp_db / "products.jsonl"
+    monkeypatch.setenv("DATABASE_URL", str(inv))
+    monkeypatch.setenv("PRODUCT_DATABASE_URL", str(prod))
     parser = cli_main.build_parser()
     parsed = parser.parse_args(args)
     outputs = []
@@ -20,8 +22,7 @@ def run_cli(args, monkeypatch, tmp_db):
 
 @pytest.fixture()
 def tmp_db(tmp_path):
-    db = tmp_path / "test.db"
-    return db
+    return tmp_path
 
 
 def test_cli_add_update_delete(monkeypatch, tmp_path, tmp_db):

@@ -9,7 +9,7 @@
    ```bash
    pip install -r requirements.txt
    ```
-4. Copy `.env.example` to `.env` and adjust paths if necessary. The defaults place the SQLite database under `data/`.
+4. Copy `.env.example` to `.env` and adjust paths if necessary. The defaults place the JSONL data files under `data/`.
 5. Run the setup script to create or update the database and systemd service:
    ```bash
    python3 scripts/setup.py
@@ -30,4 +30,4 @@ Example entry for a daily backup at 2 AM:
 0 2 * * * cd /path/to/food-admin && /path/to/venv/bin/python scripts/backup.py
 ```
 
-This keeps a timestamped copy of the SQLite database in `$BACKUP_DIR`.
+This keeps a timestamped copy of the JSONL data files in `$BACKUP_DIR`.

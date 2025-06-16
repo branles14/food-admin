@@ -12,7 +12,6 @@ PROJECT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_DIR))
 
 from src import config
-from src.db import get_db
 
 SERVICE_FILE = "/etc/systemd/system/foodadmin.service"
 
@@ -52,15 +51,10 @@ def ensure_env_file() -> None:
 
 
 def init_database(db_url: str) -> None:
-    """Create the SQLite database file and directory if needed."""
-    if not db_url.startswith("sqlite:///"):
-        return
-
-    start = len("sqlite:///")
-    path = Path(db_url[start:])
+    """Create the JSONL data file if needed."""
+    path = Path(db_url)
     path.parent.mkdir(parents=True, exist_ok=True)
-    os.environ["DATABASE_URL"] = db_url
-    get_db().close()
+    path.touch(exist_ok=True)
 
 
 def create_service() -> None:
