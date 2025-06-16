@@ -9,7 +9,9 @@
    ```bash
    pip install -r requirements.txt
    ```
-4. Copy `.env.example` to `.env` and adjust paths if necessary. The defaults place the JSONL data files under `data/`.
+4. Copy `.env.example` to `.env` and adjust paths if necessary. The defaults place
+   the JSONL data files under `data/`. An empty `data/inventory.ndjson` file is
+   included so the service starts without needing to create it.
 5. Run the setup script to create or update the database and systemd service.
    The script stops and removes any existing `foodadmin` unit so updates are
    applied correctly:
