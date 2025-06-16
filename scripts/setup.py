@@ -59,7 +59,9 @@ def init_database(db_url: str) -> None:
 
 def create_service() -> None:
     """Create or update the systemd service file."""
-    expected_exec = "/usr/bin/python3 -m src.cli.main"
+    expected_exec = (
+        "/usr/bin/python3 -m uvicorn src.api.app:app --host 0.0.0.0" " --port ${PORT}"
+    )
     action = "Created"
     if os.path.isfile(SERVICE_FILE):
         with open(SERVICE_FILE) as f:

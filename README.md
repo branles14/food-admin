@@ -39,7 +39,7 @@ The project stores product and inventory data in simple JSON Lines files.
    not exist. The `requirements.txt` file pins `httpx` to versions
    `>=0.27,<0.28` for compatibility.
 4. Start the service with `python3 scripts/startup.py` to launch the FastAPI
-   app using `python -m src.cli.main`.
+   application.
 5. Visit `http://localhost:3000/health` to verify the service is running.
 6. (Optional) Seed example data with `python3 scripts/seeds.py`.
 7. Retrieve the current inventory with `curl http://localhost:3000/inventory`.
@@ -49,16 +49,6 @@ The project stores product and inventory data in simple JSON Lines files.
    follow the [scheduled backups instructions](docs/setup.md#scheduled-backups)
    in the setup guide.
 
-## CLI Usage
-
-The command `python -m src.cli.main` exposes subcommands like `add` and `update`.
-Both accept mutually exclusive `--opened` and `--no-opened` flags to set the
-item state.
-
-```bash
-python -m src.cli.main add --product-info 1 --quantity 2 --opened
-python -m src.cli.main update 5 --no-opened
-```
 
 ## Running Tests
 
@@ -83,7 +73,7 @@ The `.env` file controls where data is stored and which port the service uses:
 
 Use `python3 scripts/setup.py` once to configure the environment and service.
 Afterwards `python3 scripts/startup.py` simply starts the systemd service
-which executes `python -m src.cli.main` in the background.
+which runs the API using uvicorn in the background.
 
 
 ## Disclaimer
