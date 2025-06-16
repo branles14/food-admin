@@ -69,4 +69,5 @@ shake_response=$(curl -s -X POST "${BASE_URL}/inventory" \
             "zinc": 2.8
         }
     }')
+
 echo "$shake_response"
