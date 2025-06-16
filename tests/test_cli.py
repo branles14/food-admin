@@ -127,7 +127,7 @@ def test_cli_add_upc_flow(monkeypatch, tmp_db):
         ]
     )
 
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(cli_main, "prompt", lambda _: next(inputs))
     outputs = run_cli(["add", "--upc", "999"], monkeypatch, tmp_db)
     assert len(outputs) == 2
     for out in outputs:
@@ -157,7 +157,15 @@ def test_cli_add_prompt_for_upc(monkeypatch, tmp_db):
         ]
     )
 
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(cli_main, "prompt", lambda _: next(inputs))
     outputs = run_cli(["add"], monkeypatch, tmp_db)
     assert len(outputs) == 1
     assert outputs[0]["product_info"]["upc"] == "999"
+
+
+def test_cli_add_interrupt(monkeypatch, tmp_db):
+    monkeypatch.setattr(
+        "builtins.input", lambda _: (_ for _ in ()).throw(KeyboardInterrupt())
+    )
+    with pytest.raises(SystemExit):
+        run_cli(["add"], monkeypatch, tmp_db)

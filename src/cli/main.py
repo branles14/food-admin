@@ -7,6 +7,21 @@ import json
 import os
 from typing import Any, Dict, Tuple
 
+try:  # pragma: no cover - optional dependency
+    import readline  # noqa: F401
+except Exception:  # pragma: no cover - Windows or missing module
+    readline = None
+
+
+def prompt(text: str) -> str:
+    """Return user input handling Ctrl+C gracefully."""
+    try:
+        return input(text)
+    except KeyboardInterrupt:  # pragma: no cover - runtime only
+        print("\nCancelled.")
+        raise SystemExit(1)
+
+
 import uvicorn
 
 from src.db import get_inventory_db, get_product_db
@@ -28,19 +43,19 @@ def add_item(args: argparse.Namespace) -> None:
 
     upc = args.upc
     if upc is None and args.product_info is None:
-        upc = input("UPC: ").strip()
+        upc = prompt("UPC: ").strip()
 
     product = None
     if upc:
         product = product_info_service.get_product_info_by_upc(prod_conn, upc)
         if product is None:
-            name = input("Product name: ")
-            size_in = input("Package size: ")
+            name = prompt("Product name: ")
+            size_in = prompt("Package size: ")
             metric_size = unit_conversion.format_metric(size_in)
-            serving_size = input("Serving size: ")
+            serving_size = prompt("Serving size: ")
 
-            def ask(prompt: str, parser: Tuple[type, ...] = (str,)) -> Any:
-                val = input(f"{prompt}: ")
+            def ask(text: str, parser: Tuple[type, ...] = (str,)) -> Any:
+                val = prompt(f"{text}: ")
                 if parser[0] is int and val:
                     return int(val)
                 return val
@@ -68,7 +83,7 @@ def add_item(args: argparse.Namespace) -> None:
                     "nutrition": nutrition,
                 },
             )
-        qty_inp = input("Quantity: ")
+        qty_inp = prompt("Quantity: ")
         count = int(qty_inp) if qty_inp else 1
         outputs = []
         for _ in range(count):
