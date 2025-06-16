@@ -43,6 +43,13 @@ def get_product_by_id(conn: Connection, id_: Any) -> Optional[Dict[str, Any]]:
     return _normalize(row)
 
 
+def get_product_by_upc(conn: Connection, upc: str) -> Optional[Dict[str, Any]]:
+    """Return a product by UPC code if it exists."""
+    cur = conn.execute("SELECT * FROM products WHERE upc = ?", (upc,))
+    row = cur.fetchone()
+    return _normalize(row)
+
+
 def list_products(conn: Connection) -> List[Dict[str, Any]]:
     cur = conn.execute("SELECT * FROM products")
     return [_normalize(row) for row in cur.fetchall()]

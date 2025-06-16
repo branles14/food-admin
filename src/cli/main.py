@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 from typing import Any, Dict
 
 import uvicorn
 
 from src.db import get_db
-from src.services import container_service
+from uuid import uuid4
+
+from src.services import container_service, product_service
+from src.utils import unit_conversion
 
 
 def serve(_: argparse.Namespace) -> None:
@@ -20,6 +24,45 @@ def serve(_: argparse.Namespace) -> None:
 
 def add_container(args: argparse.Namespace) -> None:
     conn = get_db()
+
+    product = None
+    if getattr(args, "upc", None):
+        product = product_service.get_product_by_upc(conn, args.upc)
+        if product is None:
+            name = input("Product name: ")
+            size_in = input("Package size: ")
+            metric_size = unit_conversion.format_metric(size_in)
+            nutrition_raw = input("Nutrition facts JSON: ")
+            nutrition = json.loads(nutrition_raw) if nutrition_raw else None
+            nutrition = {"package_size": metric_size, "facts": nutrition}
+            product = product_service.create_product(
+                conn,
+                {
+                    "name": name,
+                    "upc": args.upc,
+                    "uuid": str(uuid4()),
+                    "nutrition": nutrition,
+                },
+            )
+        qty_inp = input("Quantity: ")
+        count = int(qty_inp) if qty_inp else 1
+        outputs = []
+        for _ in range(count):
+            data: Dict[str, Any] = {
+                "product": product["id"],
+                "quantity": 1,
+                "opened": False,
+                "remaining": 1.0,
+                "expiration_date": None,
+                "location": None,
+                "tags": None,
+                "container_weight": None,
+            }
+            cont = container_service.create_container(conn, data)
+            outputs.append(cont)
+            print(cont)
+        return
+
     data: Dict[str, Any] = {
         "product": args.product,
         "quantity": args.quantity,
@@ -73,6 +116,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_cmd = sub.add_parser("add", help="Add a container")
     add_cmd.add_argument("--product", required=False)
     add_cmd.add_argument("--quantity", type=int, required=False)
+    add_cmd.add_argument("--upc", required=False)
     opened_grp = add_cmd.add_mutually_exclusive_group()
     opened_grp.add_argument("--opened", dest="opened", action="store_true")
     opened_grp.add_argument("--no-opened", dest="opened", action="store_false")
