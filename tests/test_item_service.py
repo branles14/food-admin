@@ -1,3 +1,5 @@
+import pytest
+
 from src.services import item_service, product_info_service
 
 
@@ -101,3 +103,31 @@ def test_update_item_all_fields(inventory_db, product_db):
     assert updated["location"] == "pantry"
     assert updated["tags"] == ["cultured"]
     assert updated["container_weight"] == 250
+
+
+def test_create_item_requires_upc(inventory_db, product_db):
+    with pytest.raises(ValueError):
+        item_service.create_item(
+            inventory_db,
+            product_db,
+            {"product": 1, "quantity": 1},
+        )
+
+
+def test_create_item_with_upc_lookup(inventory_db, product_db):
+    prod = setup_product(product_db)
+    item = item_service.create_item(
+        inventory_db,
+        product_db,
+        {"upc": prod["upc"], "quantity": 1},
+    )
+    assert item["product_info"]["id"] == prod["id"]
+
+
+def test_create_item_unknown_upc_needs_name(inventory_db, product_db):
+    with pytest.raises(ValueError):
+        item_service.create_item(
+            inventory_db,
+            product_db,
+            {"upc": "999", "quantity": 1},
+        )

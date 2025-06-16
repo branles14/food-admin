@@ -34,12 +34,44 @@ def create_item(
     items = inv_db.read_all()
     data = data.copy()
     product = data.get("product")
+    upc = data.get("upc")
+    name = data.get("name")
     if isinstance(product, dict):
-        product_id = int(product.get("id"))
+        if product.get("id") is not None:
+            product_id = int(product.get("id"))
+            info = product_info_service.get_product_info_by_id(prod_db, product_id)
+            if info is None:
+                raise ValueError("Product not found")
+            upc = upc or info.get("upc")
+            name = name or info.get("name")
+        else:
+            product_id = None
+            upc = upc or product.get("upc")
+            name = name or product.get("name")
     elif product is not None:
         product_id = int(product)
+        info = product_info_service.get_product_info_by_id(prod_db, product_id)
+        if info is None:
+            raise ValueError("Product not found")
+        upc = upc or info.get("upc")
+        name = name or info.get("name")
     else:
         product_id = None
+
+    if product_id is None:
+        if not upc:
+            raise ValueError("UPC required for new item")
+        existing = product_info_service.get_product_info_by_upc(prod_db, upc)
+        if existing:
+            product_id = existing["id"]
+            name = name or existing.get("name")
+        else:
+            if not name:
+                raise ValueError("Name required for unknown UPC")
+            new_prod = product_info_service.create_product_info(
+                prod_db, {"name": name, "upc": upc}
+            )
+            product_id = new_prod["id"]
     data.setdefault("uuid", str(uuid4()))
     item = {
         "id": _next_id(items),

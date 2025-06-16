@@ -67,3 +67,41 @@ def test_product_api_crud(inventory_db, product_db):
     assert client.get("/inventory").json() == []
 
     app.dependency_overrides.clear()
+
+
+def test_create_item_requires_upc_via_api(inventory_db, product_db):
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
+    client = TestClient(app)
+
+    resp = client.post("/inventory", json={"product": 1, "quantity": 1})
+    assert resp.status_code == 400
+
+    app.dependency_overrides.clear()
+
+
+def test_create_item_with_upc_lookup_via_api(inventory_db, product_db):
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
+    client = TestClient(app)
+
+    prod = product_info_service.create_product_info(
+        product_db, {"name": "Apple", "upc": "222"}
+    )
+
+    resp = client.post("/inventory", json={"upc": prod["upc"], "quantity": 1})
+    assert resp.status_code == 201
+    assert resp.json()["product_info"]["id"] == prod["id"]
+
+    app.dependency_overrides.clear()
+
+
+def test_create_item_unknown_upc_needs_name_via_api(inventory_db, product_db):
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
+    client = TestClient(app)
+
+    resp = client.post("/inventory", json={"upc": "999", "quantity": 1})
+    assert resp.status_code == 400
+
+    app.dependency_overrides.clear()
