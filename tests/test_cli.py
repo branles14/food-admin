@@ -104,3 +104,14 @@ def test_cli_update_extra_and_serve(monkeypatch, tmp_db):
     monkeypatch.setattr(cli_main.uvicorn, "run", fake_run)
     run_cli(["serve"], monkeypatch, tmp_db)
     assert called["app"] == "src.api.app:app"
+
+
+def test_cli_add_upc_flow(monkeypatch, tmp_db):
+    inputs = iter(["Granola", "16 oz", '{"calories": 100}', "2"])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    outputs = run_cli(["add", "--upc", "999"], monkeypatch, tmp_db)
+    assert len(outputs) == 2
+    for out in outputs:
+        assert out["product"]["upc"] == "999"
+        assert out["product"]["nutrition"]["package_size"] == "454 g"
