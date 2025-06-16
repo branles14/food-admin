@@ -108,7 +108,24 @@ def test_cli_update_extra_and_serve(monkeypatch, tmp_db):
 
 
 def test_cli_add_upc_flow(monkeypatch, tmp_db):
-    inputs = iter(["Granola", "16 oz", '{"calories": 100}', "2"])
+    inputs = iter(
+        [
+            "Granola",
+            "16 oz",
+            "1/4 cup",
+            "100",
+            "1g",
+            "0g",
+            "0g",
+            "10mg",
+            "20g",
+            "3g",
+            "5g",
+            "2g",
+            "5g",
+            "2",
+        ]
+    )
 
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
     outputs = run_cli(["add", "--upc", "999"], monkeypatch, tmp_db)
@@ -116,3 +133,31 @@ def test_cli_add_upc_flow(monkeypatch, tmp_db):
     for out in outputs:
         assert out["product_info"]["upc"] == "999"
         assert out["product_info"]["nutrition"]["package_size"] == "454 g"
+        assert out["product_info"]["nutrition"]["facts"]["calories"] == 100
+
+
+def test_cli_add_prompt_for_upc(monkeypatch, tmp_db):
+    inputs = iter(
+        [
+            "999",
+            "Granola",
+            "16 oz",
+            "1/4 cup",
+            "100",
+            "1g",
+            "0g",
+            "0g",
+            "10mg",
+            "20g",
+            "3g",
+            "5g",
+            "2g",
+            "5g",
+            "1",
+        ]
+    )
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    outputs = run_cli(["add"], monkeypatch, tmp_db)
+    assert len(outputs) == 1
+    assert outputs[0]["product_info"]["upc"] == "999"
