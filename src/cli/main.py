@@ -9,7 +9,7 @@ from typing import Any, Dict
 
 import uvicorn
 
-from src.db import get_db
+from src.db import get_inventory_db, get_product_db
 from uuid import uuid4
 
 from src.services import container_service, product_service
@@ -23,11 +23,12 @@ def serve(_: argparse.Namespace) -> None:
 
 
 def add_container(args: argparse.Namespace) -> None:
-    conn = get_db()
+    inv_conn = get_inventory_db()
+    prod_conn = get_product_db()
 
     product = None
     if getattr(args, "upc", None):
-        product = product_service.get_product_by_upc(conn, args.upc)
+        product = product_service.get_product_by_upc(prod_conn, args.upc)
         if product is None:
             name = input("Product name: ")
             size_in = input("Package size: ")
@@ -36,7 +37,7 @@ def add_container(args: argparse.Namespace) -> None:
             nutrition = json.loads(nutrition_raw) if nutrition_raw else None
             nutrition = {"package_size": metric_size, "facts": nutrition}
             product = product_service.create_product(
-                conn,
+                prod_conn,
                 {
                     "name": name,
                     "upc": args.upc,
@@ -58,7 +59,7 @@ def add_container(args: argparse.Namespace) -> None:
                 "tags": None,
                 "container_weight": None,
             }
-            cont = container_service.create_container(conn, data)
+            cont = container_service.create_container(inv_conn, prod_conn, data)
             outputs.append(cont)
             print(cont)
         return
@@ -73,12 +74,13 @@ def add_container(args: argparse.Namespace) -> None:
         "tags": args.tags.split(",") if args.tags else None,
         "container_weight": args.container_weight,
     }
-    container = container_service.create_container(conn, data)
+    container = container_service.create_container(inv_conn, prod_conn, data)
     print(container)
 
 
 def update_container(args: argparse.Namespace) -> None:
-    conn = get_db()
+    inv_conn = get_inventory_db()
+    prod_conn = get_product_db()
     data: Dict[str, Any] = {}
     if args.product is not None:
         data["product"] = args.product
@@ -96,13 +98,13 @@ def update_container(args: argparse.Namespace) -> None:
         data["tags"] = args.tags.split(",") if args.tags else None
     if args.container_weight is not None:
         data["container_weight"] = args.container_weight
-    container = container_service.update_container(conn, args.id, data)
+    container = container_service.update_container(inv_conn, prod_conn, args.id, data)
     print(container)
 
 
 def delete_container(args: argparse.Namespace) -> None:
-    conn = get_db()
-    success = container_service.delete_container(conn, args.id)
+    inv_conn = get_inventory_db()
+    success = container_service.delete_container(inv_conn, args.id)
     print({"deleted": success})
 
 

@@ -8,16 +8,13 @@ from sqlite3 import Connection
 from . import product_service
 
 
-def _normalize(
-    conn: Connection,
-    row: Optional[Any],
-) -> Optional[Dict[str, Any]]:
+def _normalize(prod_conn: Connection, row: Optional[Any]) -> Optional[Dict[str, Any]]:
     if row is None:
         return None
     data = dict(row)
     product_id = data.pop("product_id", None)
     if product_id is not None:
-        data["product"] = product_service.get_product_by_id(conn, product_id)
+        data["product"] = product_service.get_product_by_id(prod_conn, product_id)
     if "tags" in data and data["tags"] is not None:
         data["tags"] = json.loads(data["tags"])
     if "uuid" in data:
@@ -25,7 +22,9 @@ def _normalize(
     return data
 
 
-def create_container(conn: Connection, data: Dict[str, Any]) -> Dict[str, Any]:
+def create_container(
+    inv_conn: Connection, prod_conn: Connection, data: Dict[str, Any]
+) -> Dict[str, Any]:
     data = data.copy()
     product = data.get("product")
     if isinstance(product, dict):
@@ -37,7 +36,7 @@ def create_container(conn: Connection, data: Dict[str, Any]) -> Dict[str, Any]:
     data.setdefault("uuid", str(uuid4()))
     tag_value = data.get("tags")
     tags = json.dumps(tag_value) if tag_value is not None else None
-    cur = conn.execute(
+    cur = inv_conn.execute(
         (
             "INSERT INTO containers (product_id, quantity, opened, remaining, "
             "uuid, expiration_date, location, tags, container_weight)"
@@ -55,26 +54,29 @@ def create_container(conn: Connection, data: Dict[str, Any]) -> Dict[str, Any]:
             data.get("container_weight"),
         ),
     )
-    conn.commit()
-    return get_container_by_id(conn, cur.lastrowid)
+    inv_conn.commit()
+    return get_container_by_id(inv_conn, prod_conn, cur.lastrowid)
 
 
 def get_container_by_id(
-    conn: Connection,
+    inv_conn: Connection,
+    prod_conn: Connection,
     id_: Any,
 ) -> Optional[Dict[str, Any]]:
-    cur = conn.execute("SELECT * FROM containers WHERE id = ?", (int(id_),))
+    cur = inv_conn.execute("SELECT * FROM containers WHERE id = ?", (int(id_),))
     row = cur.fetchone()
-    return _normalize(conn, row)
+    return _normalize(prod_conn, row)
 
 
-def list_containers(conn: Connection) -> List[Dict[str, Any]]:
-    cur = conn.execute("SELECT * FROM containers")
-    return [_normalize(conn, row) for row in cur.fetchall()]
+def list_containers(
+    inv_conn: Connection, prod_conn: Connection
+) -> List[Dict[str, Any]]:
+    cur = inv_conn.execute("SELECT * FROM containers")
+    return [_normalize(prod_conn, row) for row in cur.fetchall()]
 
 
 def update_container(
-    conn: Connection, id_: Any, data: Dict[str, Any]
+    inv_conn: Connection, prod_conn: Connection, id_: Any, data: Dict[str, Any]
 ) -> Optional[Dict[str, Any]]:
     fields = []
     values = []
@@ -110,17 +112,17 @@ def update_container(
         fields.append("container_weight = ?")
         values.append(data["container_weight"])
     if not fields:
-        return get_container_by_id(conn, id_)
+        return get_container_by_id(inv_conn, prod_conn, id_)
     values.append(int(id_))
-    conn.execute(
+    inv_conn.execute(
         f"UPDATE containers SET {', '.join(fields)} WHERE id = ?",
         values,
     )
-    conn.commit()
-    return get_container_by_id(conn, id_)
+    inv_conn.commit()
+    return get_container_by_id(inv_conn, prod_conn, id_)
 
 
-def delete_container(conn: Connection, id_: Any) -> bool:
-    cur = conn.execute("DELETE FROM containers WHERE id = ?", (int(id_),))
-    conn.commit()
+def delete_container(inv_conn: Connection, id_: Any) -> bool:
+    cur = inv_conn.execute("DELETE FROM containers WHERE id = ?", (int(id_),))
+    inv_conn.commit()
     return cur.rowcount == 1

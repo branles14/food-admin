@@ -1,6 +1,10 @@
 from fastapi.testclient import TestClient
 
-from src.api.app import app, db_conn as app_db_conn
+from src.api.app import (
+    app,
+    inventory_conn as app_inventory_conn,
+    product_conn as app_product_conn,
+)
 from src.services import product_service
 
 
@@ -8,8 +12,9 @@ from src.services import product_service
 
 
 def test_container_api_crud(db_conn):
-    # Override dependency to use in-memory db
-    app.dependency_overrides[app_db_conn] = lambda: db_conn
+    # Override dependencies to use in-memory db
+    app.dependency_overrides[app_inventory_conn] = lambda: db_conn
+    app.dependency_overrides[app_product_conn] = lambda: db_conn
     client = TestClient(app)
 
     # create product for container reference
