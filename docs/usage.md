@@ -26,6 +26,11 @@ With the server running, you can interact with the REST endpoints. Examples:
     -d '{"quantity": 3}'
   ```
 - Delete item by UUID: `DELETE /inventory/uuid/<uuid>`
+
+You can print QR code stickers that encode the item's short UUID. Scanning one
+opens `/inventory/uuid/<uuid>` in your client so you can view the item
+instantly. After checking the details, you might issue a `PATCH` request to the
+same URL to update the `remaining` weight if you consumed some of it.
 - Consume amount from an item:
   ```bash
   curl -X POST http://localhost:3000/inventory/<id>/consume \

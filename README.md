@@ -26,6 +26,7 @@ Product information entries are identified by UUID strings rather than numeric I
 - `location` - where the item is stored
 - `tags` - labels for categorization
 - `container_weight` - weight of the empty container
+- each item automatically receives a short UUID for use with QR code stickers or scanners
 
 ### Supported Nutrition Fields
 
