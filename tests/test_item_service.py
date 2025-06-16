@@ -167,3 +167,17 @@ def test_uuid_helpers(inventory_db, product_db):
     deleted = item_service.delete_item_by_uuid(inventory_db, uuid)
     assert deleted is True
     assert item_service.get_item_by_uuid(inventory_db, product_db, uuid) is None
+
+
+def test_consume_item(inventory_db, product_db):
+    prod = setup_product(product_db)
+    item = item_service.create_item(
+        inventory_db,
+        product_db,
+        {"product": prod["id"], "remaining": 1.0},
+    )
+
+    updated = item_service.consume_item(inventory_db, product_db, item["id"], 0.25)
+    assert updated["remaining"] == 0.75
+    fetched = item_service.get_item_by_id(inventory_db, product_db, item["id"])
+    assert fetched["remaining"] == 0.75

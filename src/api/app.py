@@ -29,6 +29,10 @@ class ItemUpdate(ItemCreate):
     pass
 
 
+class ConsumeAmount(BaseModel):
+    amount: float
+
+
 app = FastAPI()
 
 
@@ -98,6 +102,25 @@ async def update_item(
     if not product:
         raise HTTPException(status_code=404, detail="Item not found")
     return product
+
+
+@app.post("/inventory/{id}/consume")
+async def consume_item(
+    id: Any,
+    data: ConsumeAmount,
+    inv_db: JsonlDB = Depends(inventory_conn),
+    prod_db: JsonlDB = Depends(product_conn),
+) -> Any:
+    item = await run_in_threadpool(
+        item_service.consume_item,
+        inv_db,
+        prod_db,
+        id,
+        data.amount,
+    )
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
 
 
 @app.delete("/inventory/{id}")
