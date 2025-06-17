@@ -9,6 +9,13 @@ See the [docs](docs/) directory for an overview of the architecture, setup instr
 The project stores product and inventory data in simple JSON Lines files.
 Product information entries are identified by UUID strings rather than numeric IDs.
 
+`product-info.ndjson` acts purely as a reference database for fast entry. It
+contains UPC lookups and common product details. When you create a new inventory
+item the relevant fields are copied into `inventory.ndjson` so that each item is
+self‑contained. After creation, API calls read only from `inventory.ndjson` and do
+not require `product-info.ndjson` to be present.
+An example of this workflow is shown in [docs/usage.md](docs/usage.md).
+
 ### Product Info
 - `id` - unique product identifier (UUID string)
 - `name` - product name

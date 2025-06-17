@@ -11,6 +11,28 @@ With the server running, you can interact with the REST endpoints. Examples:
     -H 'Content-Type: application/json' \
     -d '{"product": 1, "quantity": 1}'
   ```
+
+The `product` value references data stored in `product-info.ndjson`. That file
+is only used during item creation to populate the new entry. Once the item is
+saved, all required fields are written to `inventory.ndjson` so the API no longer
+relies on `product-info.ndjson`.
+
+For example, if `product-info.ndjson` contains an entry:
+
+```json
+{"id": 1, "name": "Oat Milk", "upc": "012345"}
+```
+
+you can create an inventory item with:
+
+```bash
+curl -X POST http://localhost:3000/inventory \
+  -H 'Content-Type: application/json' \
+  -d '{"product": 1, "quantity": 2}'
+```
+
+The resulting item stores the name and UPC itself, so deleting the product info
+later will not affect API responses.
 - Update item:
   ```bash
   curl -X PATCH http://localhost:3000/inventory/<id> \
