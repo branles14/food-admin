@@ -2,8 +2,14 @@
 
 ## Product Info
 
-`product-info.ndjson` is where generic info about products is stored.
+`product-info.ndjson` is where info about products is stored to facilitate efficient product entries into the inventory.
+
+It should contain only one example entry:
+
+```ndjson
+{"name": "Jif Creamy Peanut Butter Pouch", "upc": "051500245453", "id": "QqJEGUTmN2qs8oGMS4fSHd", "nutrition": {"added_sugars": 2, "biotin": null, "calcium": 17, "calories": 190, "cholesterol": 0, "chromium": null, "copper": null, "dietary_fiber": 2, "folate": null, "iodine": null, "iron": 0.5, "magnesium": null, "manganese": null, "molybdenum": null, "niacin": 5, "pantothenic_acid": null, "phosphorus": null, "potassium": 184, "protein": 7, "riboflavin": null, "saturated_fat": 3.5, "selenium": null, "serving_size": 33.0, "sodium": 140, "sugars": 3, "thiamin": null, "total_carbohydrate": 8, "total_fat": 16, "trans_fat": 0, "vitamin_a": null, "vitamin_b12": null, "vitamin_b6": null, "vitamin_c": null, "vitamin_d": 0, "vitamin_e": 2, "vitamin_k": null, "zinc": null}, "tags": ["favorite"]}
+```
 
 ## Inventory
 
-`inventory.ndjson` is where the users actually food inventory is stored.
+`inventory.ndjson` is where the users inventory is stored.
