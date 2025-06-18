@@ -71,7 +71,13 @@ def create_item(
             if not name:
                 raise ValueError("Name required for unknown UPC")
             new_prod = product_info_service.create_product_info(
-                prod_db, {"name": name, "upc": upc, "nutrition": nutrition}
+                prod_db,
+                {
+                    "name": name,
+                    "upc": upc,
+                    "nutrition": nutrition,
+                    "tags": data.get("tags"),
+                },
             )
             product_id = new_prod["id"]
     data.setdefault("uuid", shortuuid.uuid())
