@@ -5,7 +5,7 @@ from src.api.app import (
     inventory_conn as app_inventory_conn,
     product_conn as app_product_conn,
 )
-from src.services import item_service, product_info_service
+from src.services import inventory_service, product_info_service
 
 
 # reuse JSONL fixtures from conftest
@@ -168,7 +168,7 @@ def test_uuid_routes(inventory_db, product_db):
         {"name": "Juice", "upc": "555"},
     )
 
-    item = item_service.create_item(
+    item = inventory_service.create_item(
         inventory_db,
         product_db,
         {"product": prod["id"], "uuid": "abc"},
@@ -202,7 +202,7 @@ def test_consume_route(inventory_db, product_db):
         {"name": "Soup", "upc": "666"},
     )
 
-    item = item_service.create_item(
+    item = inventory_service.create_item(
         inventory_db,
         product_db,
         {"product": prod["id"], "remaining": 1.0},
