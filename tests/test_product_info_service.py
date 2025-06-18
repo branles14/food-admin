@@ -55,3 +55,15 @@ def test_create_product_with_extra_nutrients(product_db):
         {"nutrition": {"vitamin_a": 150, "zinc": 2}},
     )
     assert updated["nutrition"] == {"vitamin_a": 150, "zinc": 2}
+
+
+def test_product_key_order(product_db):
+    data = {
+        "name": "Juice",
+        "upc": "321",
+        "nutrition": {"calories": 80},
+        "tags": ["cold"],
+    }
+    product_info_service.create_product_info(product_db, data)
+    record = product_db.read_all()[0]
+    assert list(record.keys()) == ["name", "upc", "id", "nutrition", "tags"]

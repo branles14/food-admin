@@ -28,9 +28,9 @@ def _next_id(rows: List[Dict[str, Any]]) -> int:
 def create_product_info(db: JsonlDB, data: Dict[str, Any]) -> Dict[str, Any]:
     rows = db.read_all()
     item = {
-        "id": shortuuid.uuid(),
         "name": data.get("name"),
         "upc": data.get("upc"),
+        "id": shortuuid.uuid(),
         "nutrition": filter_nutrition(data.get("nutrition")),
         "tags": data.get("tags"),
     }
