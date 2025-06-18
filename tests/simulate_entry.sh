@@ -16,14 +16,20 @@ PORT=$env_port
 BASE_URL="http://localhost:${PORT}"
 
 # Add Jif Creamy Peanut Butter Pouch by UPC
-echo "Adding peanut butter..."
+echo "Adding peanut butter to inventory using only UPC..."
 pb_response=$(curl -s -X POST "${BASE_URL}/inventory" \
     -H 'Content-Type: application/json' \
     -d '{"upc": "051500245453"}')
-echo "$pb_response"
+
+if [[ $? == 0 ]]; then
+    echo "$pb_response"
+else
+    echo "ERROR: Failed to add peanut butter"
+    exit 1
+fi
 
 # Add one unit of the Premier Protein Banana Shake with full info
-echo "Adding banana shake..."
+echo "Adding banana shake using full product details..."
 shake_response=$(curl -s -X POST "${BASE_URL}/inventory" \
     -H 'Content-Type: application/json' \
     -d '{
@@ -67,7 +73,15 @@ shake_response=$(curl -s -X POST "${BASE_URL}/inventory" \
             "vitamin_e": null,
             "vitamin_k": 30,
             "zinc": 2.8
-        }
+        },
+        "tags": [
+            "protein"
+        ]
     }')
 
-echo "$shake_response"
+if [[ $? == 0 ]]; then
+    echo "$shake_response"
+else
+    echo "ERROR: Failed to add banana shake"
+    exit 1
+fi
