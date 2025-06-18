@@ -20,7 +20,7 @@ relies on `product-info.ndjson`.
 For example, if `product-info.ndjson` contains an entry:
 
 ```json
-{"id": 1, "name": "Oat Milk", "upc": "012345"}
+{"name": "Oat Milk", "upc": "012345", "id": "abc123"}
 ```
 
 you can create an inventory item with:
@@ -28,7 +28,7 @@ you can create an inventory item with:
 ```bash
 curl -X POST http://localhost:3000/inventory \
   -H 'Content-Type: application/json' \
-  -d '{"product": 1, "quantity": 2}'
+  -d '{"product": "abc123", "quantity": 2}'
 ```
 
 The resulting item stores the name and UPC itself, so deleting the product info

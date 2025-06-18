@@ -31,8 +31,8 @@ def create_product_info(db: JsonlDB, data: Dict[str, Any]) -> Dict[str, Any]:
         "name": data.get("name"),
         "upc": data.get("upc"),
         "id": shortuuid.uuid(),
-        "nutrition": filter_nutrition(data.get("nutrition")),
         "tags": data.get("tags"),
+        "nutrition": filter_nutrition(data.get("nutrition")),
     }
     rows.append(item)
     db.write_all(rows)
