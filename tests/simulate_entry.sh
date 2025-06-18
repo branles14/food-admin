@@ -17,9 +17,9 @@ BASE_URL="http://localhost:${PORT}"
 
 # Add Jif Creamy Peanut Butter Pouch by UPC
 echo "Adding peanut butter to inventory using only UPC..."
-pb_response=$(curl -s -X POST "${BASE_URL}/inventory" \
+pb_response=$(curl -s -f -X POST "${BASE_URL}/inventory" \
     -H 'Content-Type: application/json' \
-    -d '{"upc": "051500245453"}')
+    -d '{"upc": "051500245453", "quantity": 2}')
 
 if [[ $? == 0 ]]; then
     echo "$pb_response"
