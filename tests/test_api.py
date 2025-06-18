@@ -24,7 +24,7 @@ def test_product_api_crud(inventory_db, product_db):
             "name": "Bread",
             "upc": "111",
             "uuid": "uuid",
-            "nutrition": {"cals": 50},
+            "nutrition": {"serving": {"calories": 50}},
         },
     )
 

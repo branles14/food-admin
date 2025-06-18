@@ -10,7 +10,7 @@ def setup_product(db):
             "name": "Milk",
             "upc": "456",
             "uuid": "uuid2",
-            "nutrition": {"calories": 100},
+            "nutrition": {"serving": {"size_g": 240, "calories": 100}},
         },
     )
 
