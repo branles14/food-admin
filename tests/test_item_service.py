@@ -181,3 +181,15 @@ def test_consume_item(inventory_db, product_db):
     assert updated["remaining"] == 0.75
     fetched = inventory_service.get_item_by_id(inventory_db, product_db, item["id"])
     assert fetched["remaining"] == 0.75
+
+
+def test_create_item_adds_tags_to_new_product(inventory_db, product_db):
+    tags = ["organic", "snack"]
+    inventory_service.create_item(
+        inventory_db,
+        product_db,
+        {"upc": "99999", "name": "Chips", "tags": tags},
+    )
+
+    prod_info = product_info_service.get_product_info_by_upc(product_db, "99999")
+    assert prod_info["tags"] == tags
