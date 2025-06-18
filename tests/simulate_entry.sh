@@ -15,8 +15,8 @@ PORT=$env_port
 
 BASE_URL="http://localhost:${PORT}"
 
-# Add Jif Creamy Peanut Butter Pouch by UPC
-echo "Adding peanut butter to inventory using only UPC..."
+# Add 2 Jif Creamy Peanut Butter Pouches by UPC
+echo "Adding 2 peanut butter pouches to inventory by UPC..."
 pb_response=$(curl -s -f -X POST "${BASE_URL}/inventory" \
     -H 'Content-Type: application/json' \
     -d '{"upc": "051500245453", "quantity": 2}')
@@ -29,14 +29,17 @@ else
 fi
 
 # Add one unit of the Premier Protein Banana Shake with full info
-echo "Adding banana shake using full product details..."
+echo "Adding 1 banana shake using full product details..."
 shake_response=$(curl -s -X POST "${BASE_URL}/inventory" \
     -H 'Content-Type: application/json' \
     -d '{
         "name": "Premier Protein Banana Shake",
         "upc": "643843717850",
         "nutrition": {
-            "serving": {"size_g": 340, "calories": 160},
+            "serving": {
+                "size_g": 340,
+                "calories": 160
+            },
             "macros": {
                 "total_fat": 3,
                 "saturated_fat": 1,
