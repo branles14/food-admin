@@ -41,3 +41,20 @@ def test_create_and_list(inventory_db, product_db):
     assert result[0]["product_id"] == prod["product_id"]
 
     app.dependency_overrides.clear()
+
+
+def test_create_item_with_quantity(inventory_db, product_db):
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
+    client = TestClient(app)
+
+    prod = setup_product(product_db)
+    resp = client.post(
+        "/inventory",
+        json={"product": prod["product_id"], "quantity": 2},
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert len(data["units"]) == 2
+
+    app.dependency_overrides.clear()

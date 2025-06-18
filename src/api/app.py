@@ -20,6 +20,7 @@ class ItemCreate(BaseModel):
     opened: Optional[bool] = None
     weight_g: Optional[int] = None
     expiration_date: Optional[str] = None
+    quantity: Optional[int] = None
     tags: Optional[List[str]] = None
 
 
