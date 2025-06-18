@@ -4,10 +4,10 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
-if [ -f "$ROOT_DIR/.env" ]; then
+if [[ -f "$ROOT_DIR/.env" ]]; then
     env_port=$(grep -E '^PORT=' "$ROOT_DIR/.env" | cut -d '=' -f2)
 fi
-if [ -z "$env_port" ]; then
+if [[ -z "$env_port" ]]; then
     echo "Error: PORT not set in $ROOT_DIR/.env" >&2
     exit 1
 fi
