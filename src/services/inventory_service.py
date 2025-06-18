@@ -109,12 +109,19 @@ def create_item(
         if net is not None and empty is not None:
             unit_weight = net + empty
 
-    unit = {
-        "uuid": data.get("uuid", shortuuid.uuid()),
-        "opened": data.get("opened", False),
-        "weight_g": unit_weight,
-        "expiration_date": data.get("expiration_date"),
-    }
+    quantity = int(data.get("quantity", 1) or 1)
+    units = []
+    uuid_value = data.get("uuid")
+    for _ in range(quantity):
+        units.append(
+            {
+                "uuid": uuid_value or shortuuid.uuid(),
+                "opened": data.get("opened", False),
+                "weight_g": unit_weight,
+                "expiration_date": data.get("expiration_date"),
+            }
+        )
+        uuid_value = None
 
     item = _find_item(items, product_id)
     if item is None:
@@ -130,7 +137,8 @@ def create_item(
         }
         items.append(item)
 
-    item.setdefault("units", []).append(unit)
+    item_units = item.setdefault("units", [])
+    item_units.extend(units)
     inv_db.write_all(items)
     return _normalize(item)
 
