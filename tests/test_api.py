@@ -96,6 +96,24 @@ def test_create_item_with_upc_lookup_via_api(inventory_db, product_db):
     app.dependency_overrides.clear()
 
 
+def test_create_item_with_quantity_two_via_api(inventory_db, product_db):
+    app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
+    app.dependency_overrides[app_product_conn] = lambda: product_db
+    client = TestClient(app)
+
+    prod = product_info_service.create_product_info(
+        product_db, {"name": "Peanut Butter", "upc": "051500245453"}
+    )
+
+    resp = client.post("/inventory", json={"upc": prod["upc"], "quantity": 2})
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["quantity"] == 2
+    assert data["product_info"]["id"] == prod["id"]
+
+    app.dependency_overrides.clear()
+
+
 def test_create_item_unknown_upc_needs_name_via_api(inventory_db, product_db):
     app.dependency_overrides[app_inventory_conn] = lambda: inventory_db
     app.dependency_overrides[app_product_conn] = lambda: product_db
