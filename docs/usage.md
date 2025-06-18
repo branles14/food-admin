@@ -9,7 +9,7 @@ With the server running, you can interact with the REST endpoints. Examples:
   ```bash
   curl -X POST http://localhost:3000/inventory \
     -H 'Content-Type: application/json' \
-    -d '{"product": 1, "quantity": 1}'
+    -d '{"product": "abc123", "quantity": 1}'
   ```
 
 The `product` value references data stored in `product-info.ndjson`. That file
@@ -20,7 +20,7 @@ relies on `product-info.ndjson`.
 For example, if `product-info.ndjson` contains an entry:
 
 ```json
-{"name": "Oat Milk", "upc": "012345", "id": "abc123"}
+{"name": "Oat Milk", "upc": "012345", "product_id": "abc123"}
 ```
 
 you can create an inventory item with:

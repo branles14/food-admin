@@ -2,25 +2,17 @@ from __future__ import annotations
 
 import json
 from typing import Any, Dict, List, Optional
+
 import shortuuid
 
 from src.db import JsonlDB
 from . import product_info_service
 
 
-def _normalize(
-    prod_db: JsonlDB, row: Optional[Dict[str, Any]]
-) -> Optional[Dict[str, Any]]:
+def _normalize(row: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     if row is None:
         return None
-    data = dict(row)
-    product_id = data.pop("product_id", None)
-    if product_id is not None:
-        data["product_info"] = product_info_service.get_product_info_by_id(
-            prod_db, product_id
-        )
-    if "tags" in data and data["tags"] is not None:
-        data["tags"] = json.loads(json.dumps(data["tags"]))
+    data = json.loads(json.dumps(row))  # deep copy
     return data
 
 
@@ -28,28 +20,47 @@ def _next_id(rows: List[Dict[str, Any]]) -> int:
     return max((r.get("id", 0) for r in rows), default=0) + 1
 
 
+def _find_item(
+    items: List[Dict[str, Any]], product_id: str
+) -> Optional[Dict[str, Any]]:
+    for row in items:
+        if row.get("product_id") == product_id:
+            return row
+    return None
+
+
 def create_item(
     inv_db: JsonlDB, prod_db: JsonlDB, data: Dict[str, Any]
 ) -> Dict[str, Any]:
     items = inv_db.read_all()
     data = data.copy()
+
     product = data.get("product")
     upc = data.get("upc")
     name = data.get("name")
+    container_info = data.get("container_info")
     nutrition = data.get("nutrition")
+    tags = data.get("tags")
+
     if isinstance(product, dict):
-        if product.get("id") is not None:
-            product_id = str(product.get("id"))
-            info = product_info_service.get_product_info_by_id(prod_db, product_id)
+        prod_id = product.get("product_id") or product.get("id")
+        if prod_id is not None:
+            info = product_info_service.get_product_info_by_id(prod_db, prod_id)
             if info is None:
                 raise ValueError("Product not found")
+            product_id = info["product_id"]
             upc = upc or info.get("upc")
             name = name or info.get("name")
+            container_info = container_info or info.get("container_info")
+            nutrition = nutrition or info.get("nutrition")
+            tags = tags or info.get("tags")
         else:
             product_id = None
             upc = upc or product.get("upc")
             name = name or product.get("name")
+            container_info = container_info or product.get("container_info")
             nutrition = nutrition or product.get("nutrition")
+            tags = tags or product.get("tags")
     elif product is not None:
         product_id = str(product)
         info = product_info_service.get_product_info_by_id(prod_db, product_id)
@@ -57,6 +68,9 @@ def create_item(
             raise ValueError("Product not found")
         upc = upc or info.get("upc")
         name = name or info.get("name")
+        container_info = container_info or info.get("container_info")
+        nutrition = nutrition or info.get("nutrition")
+        tags = tags or info.get("tags")
     else:
         product_id = None
 
@@ -65,8 +79,11 @@ def create_item(
             raise ValueError("UPC required for new item")
         existing = product_info_service.get_product_info_by_upc(prod_db, upc)
         if existing:
-            product_id = existing["id"]
+            product_id = existing["product_id"]
             name = name or existing.get("name")
+            container_info = container_info or existing.get("container_info")
+            nutrition = nutrition or existing.get("nutrition")
+            tags = tags or existing.get("tags")
         else:
             if not name:
                 raise ValueError("Name required for unknown UPC")
@@ -75,160 +92,71 @@ def create_item(
                 {
                     "name": name,
                     "upc": upc,
+                    "container_info": container_info,
                     "nutrition": nutrition,
-                    "tags": data.get("tags"),
+                    "tags": tags,
                 },
             )
-            product_id = new_prod["id"]
-    data.setdefault("uuid", shortuuid.uuid())
-    item = {
-        "id": _next_id(items),
-        "product_id": product_id,
-        "quantity": data.get("quantity", 1),
-        "opened": data.get("opened", False),
-        "remaining": data.get("remaining"),
-        "uuid": data.get("uuid"),
-        "expiration_date": data.get("expiration_date"),
-        "location": data.get("location"),
-        "tags": data.get("tags"),
-        "container_weight": data.get("container_weight"),
-    }
-    items.append(item)
+            product_id = new_prod["product_id"]
+            container_info = new_prod.get("container_info")
+            nutrition = new_prod.get("nutrition")
+            tags = new_prod.get("tags")
+
+    unit_weight = data.get("weight_g")
+    if unit_weight is None and container_info:
+        net = container_info.get("net_weight_g")
+        empty = container_info.get("empty_container_weight_g")
+        if net is not None and empty is not None:
+            unit_weight = net + empty
+
+    quantity = int(data.get("quantity", 1))
+
+    item = _find_item(items, product_id)
+    if item is None:
+        item = {
+            "id": _next_id(items),
+            "product_id": product_id,
+            "name": name,
+            "upc": upc,
+            "tags": tags,
+            "container_info": container_info,
+            "nutrition": nutrition,
+            "units": [],
+        }
+        items.append(item)
+
+    units = item.setdefault("units", [])
+    for i in range(quantity):
+        units.append(
+            {
+                "uuid": (
+                    data.get("uuid", shortuuid.uuid()) if i == 0 else shortuuid.uuid()
+                ),
+                "opened": data.get("opened", False),
+                "weight_g": unit_weight,
+                "expiration_date": data.get("expiration_date"),
+            }
+        )
     inv_db.write_all(items)
-    return _normalize(prod_db, item)
+    return _normalize(item)
 
 
-def get_item_by_id(
-    inv_db: JsonlDB, prod_db: JsonlDB, id_: Any
-) -> Optional[Dict[str, Any]]:
+def list_items(inv_db: JsonlDB) -> List[Dict[str, Any]]:
+    return [_normalize(row) for row in inv_db.read_all()]
+
+
+def get_item_by_id(inv_db: JsonlDB, id_: Any) -> Optional[Dict[str, Any]]:
     items = inv_db.read_all()
     for row in items:
         if row.get("id") == int(id_):
-            return _normalize(prod_db, row)
+            return _normalize(row)
     return None
 
 
-def list_items(inv_db: JsonlDB, prod_db: JsonlDB) -> List[Dict[str, Any]]:
-    return [_normalize(prod_db, row) for row in inv_db.read_all()]
-
-
-def update_item(
-    inv_db: JsonlDB, prod_db: JsonlDB, id_: Any, data: Dict[str, Any]
-) -> Optional[Dict[str, Any]]:
-    items = inv_db.read_all()
-    updated = None
-    for row in items:
-        if row.get("id") == int(id_):
-            if "product" in data:
-                prod = data["product"]
-                if isinstance(prod, dict):
-                    prod = prod.get("id")
-                row["product_id"] = str(prod) if prod is not None else None
-            if "quantity" in data:
-                row["quantity"] = data["quantity"]
-            if "opened" in data:
-                row["opened"] = data["opened"]
-            if "remaining" in data:
-                row["remaining"] = data["remaining"]
-            if "uuid" in data:
-                row["uuid"] = data["uuid"]
-            if "expiration_date" in data:
-                row["expiration_date"] = data["expiration_date"]
-            if "location" in data:
-                row["location"] = data["location"]
-            if "tags" in data:
-                row["tags"] = data["tags"]
-            if "container_weight" in data:
-                row["container_weight"] = data["container_weight"]
-            updated = row
-            break
-    if updated is None:
-        return None
-    inv_db.write_all(items)
-    return _normalize(prod_db, updated)
-
-
-def delete_item(inv_db: JsonlDB, id_: Any) -> bool:
-    items = inv_db.read_all()
-    new_items = [row for row in items if row.get("id") != int(id_)]
-    if len(new_items) == len(items):
-        return False
-    inv_db.write_all(new_items)
-    return True
-
-
-def get_item_by_uuid(
-    inv_db: JsonlDB, prod_db: JsonlDB, uuid: Any
-) -> Optional[Dict[str, Any]]:
-    """Return a normalized item by its UUID."""
+def get_item_by_unit_uuid(inv_db: JsonlDB, uuid: str) -> Optional[Dict[str, Any]]:
     items = inv_db.read_all()
     for row in items:
-        if str(row.get("uuid")) == str(uuid):
-            return _normalize(prod_db, row)
+        for unit in row.get("units", []):
+            if str(unit.get("uuid")) == str(uuid):
+                return _normalize(row)
     return None
-
-
-def update_item_by_uuid(
-    inv_db: JsonlDB, prod_db: JsonlDB, uuid: Any, data: Dict[str, Any]
-) -> Optional[Dict[str, Any]]:
-    """Update an item located by its UUID."""
-    items = inv_db.read_all()
-    updated = None
-    for row in items:
-        if str(row.get("uuid")) == str(uuid):
-            if "product" in data:
-                prod = data["product"]
-                if isinstance(prod, dict):
-                    prod = prod.get("id")
-                row["product_id"] = str(prod) if prod is not None else None
-            if "quantity" in data:
-                row["quantity"] = data["quantity"]
-            if "opened" in data:
-                row["opened"] = data["opened"]
-            if "remaining" in data:
-                row["remaining"] = data["remaining"]
-            if "uuid" in data:
-                row["uuid"] = data["uuid"]
-            if "expiration_date" in data:
-                row["expiration_date"] = data["expiration_date"]
-            if "location" in data:
-                row["location"] = data["location"]
-            if "tags" in data:
-                row["tags"] = data["tags"]
-            if "container_weight" in data:
-                row["container_weight"] = data["container_weight"]
-            updated = row
-            break
-    if updated is None:
-        return None
-    inv_db.write_all(items)
-    return _normalize(prod_db, updated)
-
-
-def delete_item_by_uuid(inv_db: JsonlDB, uuid: Any) -> bool:
-    """Delete an item by its UUID."""
-    items = inv_db.read_all()
-    new_items = [row for row in items if str(row.get("uuid")) != str(uuid)]
-    if len(new_items) == len(items):
-        return False
-    inv_db.write_all(new_items)
-    return True
-
-
-def consume_item(
-    inv_db: JsonlDB, prod_db: JsonlDB, id_: Any, amount: float
-) -> Optional[Dict[str, Any]]:
-    """Decrease remaining by amount for the item with the given id."""
-
-    items = inv_db.read_all()
-    updated = None
-    for row in items:
-        if row.get("id") == int(id_):
-            current = row.get("remaining") or 0
-            row["remaining"] = max(0.0, current - amount)
-            updated = row
-            break
-    if updated is None:
-        return None
-    inv_db.write_all(items)
-    return _normalize(prod_db, updated)

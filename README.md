@@ -17,19 +17,15 @@ not require `product-info.ndjson` to be present.
 An example of this workflow is shown in [docs/usage.md](docs/usage.md).
 
 ### Product Info
-- `id` - unique product identifier (UUID string)
+- `product_id` - unique product identifier (UUID string)
 - `name` - product name
 - `nutrition` - nutritional details, including vitamins and minerals
 - `upc` - UPC identifier
 - `tags` - labels like "frozen" or "canned"
 
 ### Inventory Item
-- `product_info` - reference to catalog data
-- `quantity` - how many units you own
-- `opened` - whether the item has been opened
-- `remaining` - amount left in the item
-- `expiration_date` - when the item expires
-- `location` - where the item is stored
+- `product_id` - reference to catalog data
+- `units` - list of physical units with their own weight and expiration
 - `tags` - labels for categorization
 - `container_weight` - weight of the empty container
 - each item automatically receives a short UUID for use with QR code stickers or scanners
