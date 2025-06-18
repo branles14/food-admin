@@ -20,7 +20,7 @@ relies on `product-info.ndjson`.
 For example, if `product-info.ndjson` contains an entry:
 
 ```json
-{"name": "Oat Milk", "upc": "012345", "id": "abc123"}
+{"name": "Oat Milk", "upc": "012345", "product_id": "abc123"}
 ```
 
 you can create an inventory item with:

@@ -25,12 +25,12 @@ def test_create_list_update_delete_product(product_db):
     assert len(products) == 1
 
     updated = product_info_service.update_product_info(
-        product_db, created["id"], {"name": "Cheddar", "tags": ["canned"]}
+        product_db, created["product_id"], {"name": "Cheddar", "tags": ["canned"]}
     )
     assert updated["name"] == "Cheddar"
     assert updated["tags"] == ["canned"]
 
-    result = product_info_service.delete_product_info(product_db, created["id"])
+    result = product_info_service.delete_product_info(product_db, created["product_id"])
     assert result is True
     assert product_info_service.list_product_info(product_db) == []
 
@@ -58,7 +58,7 @@ def test_create_product_with_extra_nutrients(product_db):
 
     updated = product_info_service.update_product_info(
         product_db,
-        created["id"],
+        created["product_id"],
         {"nutrition": {"micronutrients": {"vitamin_a": 150, "zinc": 2}}},
     )
     assert updated["nutrition"] == {"micronutrients": {"vitamin_a": 150, "zinc": 2}}
@@ -73,4 +73,11 @@ def test_product_key_order(product_db):
     }
     product_info_service.create_product_info(product_db, data)
     record = product_db.read_all()[0]
-    assert list(record.keys()) == ["name", "upc", "id", "tags", "nutrition"]
+    assert list(record.keys()) == [
+        "name",
+        "upc",
+        "product_id",
+        "tags",
+        "container_info",
+        "nutrition",
+    ]
