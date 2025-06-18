@@ -1,6 +1,6 @@
 import pytest
 
-from src.services import item_service, product_info_service
+from src.services import inventory_service, product_info_service
 
 
 def setup_product(db):
@@ -18,7 +18,7 @@ def setup_product(db):
 def test_create_list_update_delete_item(inventory_db, product_db):
     prod_info = setup_product(product_db)
 
-    item = item_service.create_item(
+    item = inventory_service.create_item(
         inventory_db,
         product_db,
         {
@@ -37,10 +37,10 @@ def test_create_list_update_delete_item(inventory_db, product_db):
     assert item["tags"] == ["dairy"]
     assert item["container_weight"] == 200
 
-    products = item_service.list_items(inventory_db, product_db)
+    products = inventory_service.list_items(inventory_db, product_db)
     assert len(products) == 1
 
-    updated = item_service.update_item(
+    updated = inventory_service.update_item(
         inventory_db,
         product_db,
         item["id"],
@@ -50,9 +50,9 @@ def test_create_list_update_delete_item(inventory_db, product_db):
     assert updated["tags"] == ["dairy", "open"]
     assert updated["container_weight"] == 250
 
-    result = item_service.delete_item(inventory_db, item["id"])
+    result = inventory_service.delete_item(inventory_db, item["id"])
     assert result is True
-    assert item_service.list_items(inventory_db, product_db) == []
+    assert inventory_service.list_items(inventory_db, product_db) == []
 
 
 def test_update_item_all_fields(inventory_db, product_db):
@@ -62,7 +62,7 @@ def test_update_item_all_fields(inventory_db, product_db):
         {"name": "Yogurt", "upc": "789", "uuid": "uuid3", "nutrition": None},
     )
 
-    item = item_service.create_item(
+    item = inventory_service.create_item(
         inventory_db,
         product_db,
         {
@@ -77,7 +77,7 @@ def test_update_item_all_fields(inventory_db, product_db):
         },
     )
 
-    updated = item_service.update_item(
+    updated = inventory_service.update_item(
         inventory_db,
         product_db,
         item["id"],
@@ -106,7 +106,7 @@ def test_update_item_all_fields(inventory_db, product_db):
 
 def test_create_item_requires_upc(inventory_db, product_db):
     with pytest.raises(ValueError):
-        item_service.create_item(
+        inventory_service.create_item(
             inventory_db,
             product_db,
             {"product": "1", "quantity": 1},
@@ -115,7 +115,7 @@ def test_create_item_requires_upc(inventory_db, product_db):
 
 def test_create_item_with_upc_lookup(inventory_db, product_db):
     prod = setup_product(product_db)
-    item = item_service.create_item(
+    item = inventory_service.create_item(
         inventory_db,
         product_db,
         {"upc": prod["upc"], "quantity": 1},
@@ -125,7 +125,7 @@ def test_create_item_with_upc_lookup(inventory_db, product_db):
 
 def test_create_item_unknown_upc_needs_name(inventory_db, product_db):
     with pytest.raises(ValueError):
-        item_service.create_item(
+        inventory_service.create_item(
             inventory_db,
             product_db,
             {"upc": "999", "quantity": 1},
@@ -134,7 +134,7 @@ def test_create_item_unknown_upc_needs_name(inventory_db, product_db):
 
 def test_create_item_defaults(inventory_db, product_db):
     prod_info = setup_product(product_db)
-    item = item_service.create_item(
+    item = inventory_service.create_item(
         inventory_db,
         product_db,
         {"product": prod_info["id"]},
@@ -147,16 +147,16 @@ def test_create_item_defaults(inventory_db, product_db):
 def test_uuid_helpers(inventory_db, product_db):
     prod_info = setup_product(product_db)
     uuid = "item-uuid"
-    item = item_service.create_item(
+    item = inventory_service.create_item(
         inventory_db,
         product_db,
         {"product": prod_info["id"], "uuid": uuid, "quantity": 1},
     )
 
-    fetched = item_service.get_item_by_uuid(inventory_db, product_db, uuid)
+    fetched = inventory_service.get_item_by_uuid(inventory_db, product_db, uuid)
     assert fetched["id"] == item["id"]
 
-    updated = item_service.update_item_by_uuid(
+    updated = inventory_service.update_item_by_uuid(
         inventory_db,
         product_db,
         uuid,
@@ -164,20 +164,20 @@ def test_uuid_helpers(inventory_db, product_db):
     )
     assert updated["quantity"] == 3
 
-    deleted = item_service.delete_item_by_uuid(inventory_db, uuid)
+    deleted = inventory_service.delete_item_by_uuid(inventory_db, uuid)
     assert deleted is True
-    assert item_service.get_item_by_uuid(inventory_db, product_db, uuid) is None
+    assert inventory_service.get_item_by_uuid(inventory_db, product_db, uuid) is None
 
 
 def test_consume_item(inventory_db, product_db):
     prod = setup_product(product_db)
-    item = item_service.create_item(
+    item = inventory_service.create_item(
         inventory_db,
         product_db,
         {"product": prod["id"], "remaining": 1.0},
     )
 
-    updated = item_service.consume_item(inventory_db, product_db, item["id"], 0.25)
+    updated = inventory_service.consume_item(inventory_db, product_db, item["id"], 0.25)
     assert updated["remaining"] == 0.75
-    fetched = item_service.get_item_by_id(inventory_db, product_db, item["id"])
+    fetched = inventory_service.get_item_by_id(inventory_db, product_db, item["id"])
     assert fetched["remaining"] == 0.75
