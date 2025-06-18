@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.concurrency import run_in_threadpool
 from src.db import JsonlDB, get_inventory_db, get_product_db
-from src.services import item_service, product_info_service
+from src.services import inventory_service, product_info_service
 
 
 class ItemCreate(BaseModel):
@@ -59,7 +59,7 @@ async def list_items(
     prod_db: JsonlDB = Depends(product_conn),
 ) -> Any:
     items = await run_in_threadpool(
-        item_service.list_items,
+        inventory_service.list_items,
         inv_db,
         prod_db,
     )
@@ -76,7 +76,7 @@ async def create_item(
 ) -> Any:
     try:
         return await run_in_threadpool(
-            item_service.create_item,
+            inventory_service.create_item,
             inv_db,
             prod_db,
             data.dict(exclude_unset=True),
@@ -93,7 +93,7 @@ async def update_item(
     prod_db: JsonlDB = Depends(product_conn),
 ) -> Any:
     product = await run_in_threadpool(
-        item_service.update_item,
+        inventory_service.update_item,
         inv_db,
         prod_db,
         id,
@@ -112,7 +112,7 @@ async def consume_item(
     prod_db: JsonlDB = Depends(product_conn),
 ) -> Any:
     item = await run_in_threadpool(
-        item_service.consume_item,
+        inventory_service.consume_item,
         inv_db,
         prod_db,
         id,
@@ -126,7 +126,7 @@ async def consume_item(
 @app.delete("/inventory/{id}")
 async def delete_item(id: Any, inv_db: JsonlDB = Depends(inventory_conn)) -> Any:
     deleted = await run_in_threadpool(
-        item_service.delete_item,
+        inventory_service.delete_item,
         inv_db,
         id,
     )
@@ -142,7 +142,7 @@ async def get_item_by_uuid(
     prod_db: JsonlDB = Depends(product_conn),
 ) -> Any:
     item = await run_in_threadpool(
-        item_service.get_item_by_uuid,
+        inventory_service.get_item_by_uuid,
         inv_db,
         prod_db,
         uuid,
@@ -160,7 +160,7 @@ async def update_item_by_uuid(
     prod_db: JsonlDB = Depends(product_conn),
 ) -> Any:
     item = await run_in_threadpool(
-        item_service.update_item_by_uuid,
+        inventory_service.update_item_by_uuid,
         inv_db,
         prod_db,
         uuid,
@@ -176,7 +176,7 @@ async def delete_item_by_uuid(
     uuid: Any, inv_db: JsonlDB = Depends(inventory_conn)
 ) -> Any:
     deleted = await run_in_threadpool(
-        item_service.delete_item_by_uuid,
+        inventory_service.delete_item_by_uuid,
         inv_db,
         uuid,
     )

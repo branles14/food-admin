@@ -21,7 +21,6 @@ An example of this workflow is shown in [docs/usage.md](docs/usage.md).
 - `name` - product name
 - `nutrition` - nutritional details, including vitamins and minerals
 - `upc` - UPC identifier
-- `uuid` - unique identifier
 - `tags` - labels like "frozen" or "canned"
 
 ### Inventory Item
