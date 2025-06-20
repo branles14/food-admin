@@ -1,0 +1,19 @@
+name: simulate entry
+on:
+  push:
+    branches: [ dev ]
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: cp .env.example .env
+      - run: pip install -r requirements.txt
+      - run: uvicorn src.api.app:app --port 3000 &
+      - run: sleep 5 && ./tests/simulate_entry.sh > simulate_entry_output.txt
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add simulate_entry_output.txt
+          git commit -m "Add simulate entry output" || echo "no changes"
+          git push
